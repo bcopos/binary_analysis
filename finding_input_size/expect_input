@@ -1,0 +1,45 @@
+#!/usr/bin/expect
+
+# WARNING! restricting # because we're using that as delimiter for sed in ./repeat_fuzz
+
+#set BINARY "~/samples/templates/service-template/bin/LUNGE_00001"
+#set BINARY "/home/vagrant/samples/examples/LUNGE_00002/bin/LUNGE_00002"
+#set BINARY "/home/vagrant/samples/examples/KPRCA_00001/bin/KPRCA_00001"
+set BINARY "/home/vagrant/samples/examples/KPRCA_00003/bin/KPRCA_00003"
+#set BINARY "/home/vagrant/samples/examples/YAN01_00001/bin/YAN01_00001"
+#set BINARY "/home/vagrant/samples/examples/YAN01_00002/bin/YAN01_00002"
+#set BINARY "/home/vagrant/samples/examples/CADET_00001/bin/CADET_00001"
+#set BINARY "/home/vagrant/samples/examples/EAGLE_00004/bin/EAGLE_00004_1"
+set PERF "/home/vagrant/linux-source-3.13.2-cgc/tools/perf/perf"
+set TIMEOUT 1
+
+if { $argc != 1} {
+	puts "The script requires an argument (the input character)"
+	puts "e.g. expect_input a"
+	exit 1
+}
+
+
+spawn bash -c "ssh -o StrictHostKeyChecking=no vagrant@127.0.0.1 -p 2222"
+# '$PERF stat -e instructions:u $BINARY'"
+
+set timeout $TIMEOUT
+set INPUT [lindex $argv 0]
+set NEWLINE "\n"
+set STRING $INPUT$NEWLINE
+
+#expect "vagrant@cgc-linux-packer:~$ " {
+sleep 0.1
+send "$PERF stat -e instructions:u $BINARY\r"
+sleep 0.1
+#expect "> "
+send $STRING
+sleep 0.2
+#sleep 0.5
+#expect "> "
+expect "*."
+sleep 0.2
+send "\003\r"
+#expect ".*instructions:u"
+expect "vagrant@cgc-linux-packer:~$ "
+exit 0
