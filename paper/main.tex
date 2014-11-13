@@ -1,46 +1,153 @@
 \documentclass[11pt,twocolumn]{article}
 \usepackage{multicol}
 
+% paper for USENIX has to be 13 pages
 
 \begin{document}
 
-%\title{Reverse Engineering Valid Input via Side Channels}
-%\maketitle
 \twocolumn[{%
   \centering
-  \LARGE Reverse Engineering Valid Input via Side Channels \\[1em]
-  \large Bogdan Copos \\
-  	    Praveen Murthy \\[1.5em]
+  \LARGE Reverse Engineering Binary's Input via Side Channels \\[1em]
+  \large \textbf{Bogdan Copos}, UC Davis\\
+  	    \textbf{Praveen Murthy}, Fujitsu Laboratories of America \\[1.5em]
 }]
   
 \section{Abstract}
 Automatic identification of bugs remains one of the biggest challenges in security.
 Despite widespread research of various approaches, both static and dynamic, the problem remains (REWRITE).
-One of the biggest obstacles in automatic testing is thorough exercising of the program.
+One of the biggest obstacles in automatic testing is extensive exercising of the program.
 While fuzzing and symbolic execution can be successful in finding bugs [cite], both approaches have limitations.
-To date, there is no alternative for generating input for unknown binaries.
+To date, there is no alternate method for generating input for unknown binaries.
 In this paper we present NAME, an architecture and source code independent, instrumentation-free technique for generating valid commands/input for unknown stripped binaries.
 NAME exploits side channels to incrementally build valid commands which allow for more extensive testing.
 
 \section{Introduction}
 
+Software testing is an expensive and labor intensive process.
+Researchers have developed tools to help identify bugs and speed up the testing process.
+While many bugs have been identified, no approach is perfect and many challenges in autonomous software testing remain.
+One of the biggest obstacles is thorough exploration of the program.
+Without high code coverage, bugs may be omitted.
+At the same time, high code coverage cannot be accomplished without sufficient exercising of the program using valid input/commands.
+Valid input can be learned from documentation or specifications.
+When such information is not available, other methods must be used.
+To date, there are two methods which may be used for input generation: fuzzing and symbolic execution.
+In this paper, we present a third method for valid input generation for unknown stripped binaries.
+Our method takes advantage of instruction counters to incrementally build valid inputs which are guaranteed to expand code coverage.
 
+The paper is organized as follows [MAYBE]
+
+\section{Previous Work}
+
+Fuzzers are a popular choice amongst software testers.
+They are easy to use and have produced good results in the past.
+There are two classes of fuzzers: black box fuzzers and white box fuzzers.
+In black box fuzzing, testing is based on randomly generated input and observing output to identify problems.
+No program specifications or knowledge of the input format is available in such cases.
+On the other hand, in white box fuzzing, inputs are used to gather symbolic constraints which are in turn systematically negated and solved to produce more inputs.
+White box fuzzing differs from black box fuzzing in that it uses the program's feedback to make inferences about valid input and use constraint solvers to generate more input.
+Both fuzzing approach have some limitations.
+Since black box fuzzing is completely random, its effectiveness is limited, especially with respect to exercising programs.
+White box fuzzing can reach better code coverage but can be slow.
+[MAYBE TALK ABOUT FUZZING RESULTS, CITATIONS]
+
+Symbolic execution is another method used for generating valid input.
+In symbolic execution, an interpreter gathers constraints related to user input throughout the program's execution, rather than using actual user input.
+At the end of the execution, a constraint solver takes the constraints gathered and outputs valid program input.
+Symbolic execution has been studied extensively and has been proved effective [CITE].
+[TALK ABOUT ONE OF THE CITATIONS]
+Despite positive results, symbolic execution has a fundamental limitation with respect to constraint solving.
+While it performs well when constraints are linear, non-linear constraints complicate things greatly.
+Furthermore, there is no autonomous symbolic execution engine.
+All symbolic executioners today require some instrumentation of the program to determine the program's input buffer.
+Some symbolic execution engines even require source code, which is not always available to the tester.
+
+The method presented in this paper takes advantage of instruction hardware counters to observe program's behavior and incrementally build valid input.
+As opposed to fuzzers, where input is randomly generated, this approach uses side channels to intelligently compose valid program input.
+Also, unlike symbolic execution, this approach does not require any instrumentation or source code.
 
 \section{Background}
+ 
+Side channels are streams of useful information that can be retrieved from the hardware of a device running a given program.
+This information can be then used to learn more about the program's internals.
+Side channels have been widely explored by security specialist in order to exploit weaknesses in programs.
+In cryptography, side channel attacks exploit such side channels to break crypto systems rather than attempting brute force or finding weaknesses in the underlying algorithms.
+Recently, side channel attacks, such as OpenSSL's CREAM cache timing attack have made the headlines. [CITE]
+Similarly to CREAM and other side channel attacks, the technique discussed in this paper exploits side channels to generate valid input for binaries.
 
+The majority of software programs accept user input, transform the input and provide the result as useful output. [REWORD]
+However, most programs do not accept completely random input.
+User input usually passes through an input validation filter.
+Such filters are snippets of code responsible for distinguishing between valid input (i.e. input the program was constructed to understand) and input which is not useful or does not follow the desired format.
+Although they can be very sophisticated, input validation filters are often a combination of `strcmp()` function calls and conditional statements.
+These additional instructions, designed to verify the input, can be measured to make inferences about the program's validation mechanism.
 
-
-fuzzers 
-symbolic execution limitations (some require source, others require instrumentation, cannot handle floating point instructions, fundamental limitations such as non-linear constraints solving)
-lack of architecture independent, source independent, instrumentation free automatic valid input determination.
-
-\section{Related Work}
+Most modern microprocessors have a set of special-purpose registers built to store the counts of hardware events.
+Each counter can be programmed to measure specific events such as cache misses, floating point operations, and even instructions executed.
+Utilities, such as Linux/Unix `perf', take advantage of such hardware counters in order to provide developers with useful information about a program's performance.
+`perf' is a kernel module which ... [HOW DOES PERF WORK]
+In this work, we use `perf' to count the number of instructions executed as a program is given various input.
 
 \section{Methodology}
 
+[some short introduction]
+For the purpose of this paper, good or valid input is defined as input which successfully passes the input validation mechanism of a given program.
+Contrarily, bad or invalid input is input which does not pass validation and is rejected or ignored by a given program.
+Building valid input for a given program using our method is comprised of two components.
+One component is responsible for finding characters of valid input strings at a given index.
+The second component coordinates with the first to incrementally build valid input strings.
+In order to build valid input for a given program, we start by measuring the number of instructions retired during the program's execution using the `perf' utility.
+Specifically, we want to observe differences in the number of instructions executed as a result of different input.
+
+\subsection{Determining valid characters at a given index}
+
+The process of finding valid characters for a given index is composed of two stages, the testing stage and the filtering stage.
+
+\subsubsection{Testing stage}
+
+During the testing stage, the program is executed with `perf' and given all of the printable characters, one at a time, as input.
+Each printable character results in a different program execution.
+At the end of each execution, the number of instructions retired for that printable character is recorded in a dictionary.
+The difference in the number of instructions between various printable characters is a side effect of the input validation mechanism.
+The dictionary data structure is then used in the filtering stage to determine which characters are likely to be part of a valid input string for the given program.
+
+\subsubsection{Filtering stage}
+
+The filtering stage is responsible for identifying characters which are highly likely to be part of a valid input string at a given index.
+Using the dictionary obtained from the testing stage, the number of instructions retired are analyzed.
+First, the mode of the number of instructions executed is calculated.
+The filtering of possible valid characters for a given index \textit{i}, of an input string \textit{s}, is based on the assumption that the majority of characters do not belong at index \textit{i} of string \textit{s} (i.e. \textit{s[i]}).
+Therefore, valid characters are defined as any printable character for which the number of instructions retired is outside the mode.
+
+While the initial reaction is to expect a valid character to result in more instructions executed than a non-valid character, this is not always the case.
+As discussed earlier, the input validation mechanism can be complex and can vary in behavior.
+The validation mechanism may verify input against all accepted input strings before denying the provided input.
+Such a scenario may cause bad input to result in more instructions executed than valid input.
+
+\subsection{Building valid input string}
+
+In order to build valid input strings, ...
+The two stages are repeated for every index of the input string.
+
 \section{Evaluation}
 
+- talk about interview problem [MAYBE?]
+
 \section{Results}
+
+\section{Limitations}
+
+Here are some limitations:
+
+- programs that have random number of instructions executing to defeat side channels.
+
+- programs that randomly generate input at each execution (this can be defeated by sampling number of instructions retired during one execution).
+
+- programs that do not have any particular rules for acceptable input, such as an echo program.
+
+- programs where input fields depend on each other.
+
+- programs that validate input fields out of order.
 
 \section{Conclusions}
 \end{document}
