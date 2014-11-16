@@ -1,54 +1,92 @@
-\documentclass[11pt,twocolumn]{article}
+\documentclass[10pt,twocolumn]{article}
 \usepackage{multicol}
+\usepackage{graphicx}
 
-% paper for USENIX has to be 13 pages
+% definitions
+\def \tool {InputFinder}  
 
 \begin{document}
 
 \twocolumn[{%
   \centering
-  \LARGE Reverse Engineering Binary's Input via Side Channels \\[1em]
-  \large \textbf{Bogdan Copos}, UC Davis\\
-  	    \textbf{Praveen Murthy}, Fujitsu Laboratories of America \\[1.5em]
+  \large \textbf{InputFinder: Reverse Engineering Closed Binaries via Side Channels} \\[2em]
+  Bogdan Copos, University of California, Davis\\
+  Praveen Murthy, Fujitsu Laboratories of America \\[4em]
 }]
-  
-\section{Abstract}
-Automatic identification of bugs remains one of the biggest challenges in security.
-Despite widespread research of various approaches, both static and dynamic, the problem remains (REWRITE).
-One of the biggest obstacles in automatic testing is extensive exercising of the program.
-While fuzzing and symbolic execution can be successful in finding bugs [cite], both approaches have limitations.
-To date, there is no alternate method for generating input for unknown binaries.
-In this paper we present NAME, an architecture and source code independent, instrumentation-free technique for generating valid commands/input for unknown stripped binaries.
-NAME exploits side channels to incrementally build valid commands which allow for more extensive testing.
+
+
+\begin{abstract}
+User input and test suites are crucial to dynamic program analysis techniques.
+Without extensive testing of the program, bugs may be omitted.
+While fuzzing and symbolic execution can be successful in finding input, both approaches have limitations.
+To date, there is no alternative method for generating input for closed (source) binaries.
+In this paper we present an architecture and source code independent, instrumentation-free technique for generating valid input for closed stripped binaries and its implementation \tool{}.
+\tool{} exploits side channels to automatically build valid user-input allowing for more extensive testing.
+Additionally, \tool{} can determine input buffer size and make inferences about input types (e.g. alphabetic, numeric, alphanumeric, etc.).
+\end{abstract}
 
 \section{Introduction}
 
 Software testing is an expensive and labor intensive process.
-Researchers have developed tools to help identify bugs and speed up the testing process.
-While many bugs have been identified, no approach is perfect and many challenges in autonomous software testing remain.
-One of the biggest obstacles is thorough exploration of the program.
-Without high code coverage, bugs may be omitted.
-At the same time, high code coverage cannot be accomplished without sufficient exercising of the program using valid input/commands.
-Valid input can be learned from documentation or specifications.
-When such information is not available, other methods must be used.
-To date, there are two methods which may be used for input generation: fuzzing and symbolic execution.
-In this paper, we present a third method for valid input generation for unknown stripped binaries.
-Our method takes advantage of instruction counters to incrementally build valid inputs which are guaranteed to expand code coverage.
+For many years, researchers have explored both static and dynamic methods for analyzing programs.
+While static analysis is the more thorough approach, dynamic testing is often preferred due to its time efficiency.
+Dynamic testing heavily depends on availability of user input or test suites.
+Without input, the program cannot be properly tested and bugs may be omitted.
+While valid input can be learned from software documentation or source code, when such information is not available, other methods must be used.
+Automated dynamic analysis techniques such as fuzzing and symbolic execution attempt to generate input for a given program.
+Currently these are the only two options available and both approaches present discouraging limitations.
 
-The paper is organized as follows [MAYBE]
+[DESCRIBE OUR WORK]
+
+[THE CONTRIBUTIONS OF THIS PAPER ARE AS FOLLOWS:]
+
+In this paper, we introduce a third method for generating valid user-input for closed stripped binaries. 
+Our method exploits side channels, specifically retired instructions counters, to build valid input for closed binaries.
+We also present an implementation of our method, \tool{}.
+
+The paper is organized as follows.
+Section 2 covers background information.
+Section 3 discusses related works and differences with respect to the presented method.
+In Section 4 our method is explained.
+Section 5 describes evaluation of the method presented and the results.
+In Section 6 we discuss future work and limitations of the presented work.
+
+\section{Background}
+ 
+\subsection{Side Channels}
+
+Side channels are streams of information that can be retrieved from the hardware of a device running a given program.
+This information can be used to learn more about the program's internals.
+Side channels have been widely explored by security researchers in order to exploit weaknesses in programs.
+In cryptography, side channel attacks exploit such information channels to break crypto systems rather than applying traditional brute force or reverse engineering techniques.
+Recently, side channel attacks, such as OpenSSL's CREAM cache timing attack have made headlines. [CITE]
+Similar to CREAM and other side channel attacks, the technique discussed in this paper exploits such information channels to generate valid input for binaries.
+
+\subsection{Hardware counter registers}
+
+Most modern microprocessors have a set of special-purpose registers built to store the counts of hardware events.
+Each counter can be programmed to measure specific events such as cache misses, floating point operations, and even instructions executed.
+Utilities, such as Linux/Unix `perf', take advantage of such hardware counters in order to provide developers with useful information about a program's performance.
+`perf' is a tool which allows developers to specify the desired hardware event they wish to measure.
+Once events have been selected, `perf' interacts with kernel modules to program the hardware counters accordingly.
+In this work, we use `perf' to count the number of \textbf{user-land} instructions executed as a program is tested with various input.
+The number of total instructions retired oscillates significantly for a binary from execution to execution.
+This phenomena reflects fluctuations in instructions executed by the kernel depending on the state of the machine due to cache-misses and other events.
+Since we rely on this count, such variations are problematic.
+However, the number of user-land instructions only varies by one instruction on average, giving us a reliable counter.
 
 \section{Previous Work}
 
 Fuzzers are a popular choice amongst software testers.
 They are easy to use and have produced good results in the past.
 There are two classes of fuzzers: black box fuzzers and white box fuzzers.
-In black box fuzzing, testing is based on randomly generated input and observing output to identify problems.
+In black box fuzzing, testing is based on randomly generating input and observing output to identify problems.
 No program specifications or knowledge of the input format is available in such cases.
 On the other hand, in white box fuzzing, inputs are used to gather symbolic constraints which are in turn systematically negated and solved to produce more inputs.
 White box fuzzing differs from black box fuzzing in that it uses the program's feedback to make inferences about valid input and use constraint solvers to generate more input.
-Both fuzzing approach have some limitations.
+Both fuzzing approach have limitations.
 Since black box fuzzing is completely random, its effectiveness is limited, especially with respect to exercising programs.
-White box fuzzing can reach better code coverage but can be slow.
+White box fuzzing can attain better code coverage but can be slow.
 [MAYBE TALK ABOUT FUZZING RESULTS, CITATIONS]
 
 Symbolic execution is another method used for generating valid input.
@@ -57,61 +95,55 @@ At the end of the execution, a constraint solver takes the constraints gathered 
 Symbolic execution has been studied extensively and has been proved effective [CITE].
 [TALK ABOUT ONE OF THE CITATIONS]
 Despite positive results, symbolic execution has a fundamental limitation with respect to constraint solving.
-While it performs well when constraints are linear, non-linear constraints complicate things greatly.
+While symbolic execution engines perform well when constraints are linear, non-linear constraints greatly impact efficiency.
 Furthermore, there is no autonomous symbolic execution engine.
 All symbolic executioners today require some instrumentation of the program to determine the program's input buffer.
 Some symbolic execution engines even require source code, which is not always available to the tester.
 
-The method presented in this paper takes advantage of instruction hardware counters to observe program's behavior and incrementally build valid input.
+[TALK ABOUT SIDE CHANNEL ATTACKS AND CITATIONS]
+
+The method presented in this paper takes advantage of hardware counters to observe program's behavior and automatically build valid input.
 As opposed to fuzzers, where input is randomly generated, this approach uses side channels to intelligently compose valid program input.
-Also, unlike symbolic execution, this approach does not require any instrumentation or source code.
-
-\section{Background}
- 
-Side channels are streams of useful information that can be retrieved from the hardware of a device running a given program.
-This information can be then used to learn more about the program's internals.
-Side channels have been widely explored by security specialist in order to exploit weaknesses in programs.
-In cryptography, side channel attacks exploit such side channels to break crypto systems rather than attempting brute force or finding weaknesses in the underlying algorithms.
-Recently, side channel attacks, such as OpenSSL's CREAM cache timing attack have made the headlines. [CITE]
-Similarly to CREAM and other side channel attacks, the technique discussed in this paper exploits side channels to generate valid input for binaries.
-
-The majority of software programs accept user input, transform the input and provide the result as useful output. [REWORD]
-However, most programs do not accept completely random input.
-User input usually passes through an input validation filter.
-Such filters are snippets of code responsible for distinguishing between valid input (i.e. input the program was constructed to understand) and input which is not useful or does not follow the desired format.
-Although they can be very sophisticated, input validation filters are often a combination of `strcmp()` function calls and conditional statements.
-These additional instructions, designed to verify the input, can be measured to make inferences about the program's validation mechanism.
-
-Most modern microprocessors have a set of special-purpose registers built to store the counts of hardware events.
-Each counter can be programmed to measure specific events such as cache misses, floating point operations, and even instructions executed.
-Utilities, such as Linux/Unix `perf', take advantage of such hardware counters in order to provide developers with useful information about a program's performance.
-`perf' is a kernel module which ... [HOW DOES PERF WORK]
-In this work, we use `perf' to count the number of instructions executed as a program is given various input.
+Also, unlike symbolic execution, this approach is not hindered by constraint solver limitations and does not require any instrumentation or source code.
 
 \section{Methodology}
 
-[some short introduction]
-For the purpose of this paper, good or valid input is defined as input which successfully passes the input validation mechanism of a given program.
-Contrarily, bad or invalid input is input which does not pass validation and is rejected or ignored by a given program.
-Building valid input for a given program using our method is comprised of two components.
-One component is responsible for finding characters of valid input strings at a given index.
-The second component coordinates with the first to incrementally build valid input strings.
-In order to build valid input for a given program, we start by measuring the number of instructions retired during the program's execution using the `perf' utility.
-Specifically, we want to observe differences in the number of instructions executed as a result of different input.
+The majority of software programs accept user input, perform transformations on the input and output the result.
+However, most programs do not accept completely random input.
+User input usually passes through an input validation filter.
+Such filters are snippets of code responsible for distinguishing between valid or good input (i.e. input the program was constructed to understand) and bad input (i.e. input which is not useful or does not follow the desired format).
+Although validation mechanisms can be very sophisticated, they are often a combination of string comparisons and conditional statements.
+Our method exploits the presence (or lack) of these additional instructions during an execution to make inferences about the program's validation mechanism.
+Specifically, we test the program with different input and compare the number of retired user-land instructions executed.
+Assuming most input is bad, we observe differences in the number of instructions executed and detect input which passes the validation mechanism.
 
-\subsection{Determining valid characters at a given index}
+We present \tool{} an implementation of the method described above.
+Given a closed binary, \tool{} can build valid input, inform the tester about the type of acceptable input, and determine input buffer size.
+
+\subsection{Finding Valid Input}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[height=2.5in,width=6.5in]{architecture.png}
+\label{fig:architecture}
+\caption{}
+\end{figure*}
+
+In order to build valid input for a given program, \tool{} measures the number of user-land instructions retired during the program's execution using the `perf' utility.
+Specifically, \tool{} observes differences in the number of instructions executed as a result of different input.
+Generating valid input strings is a two-step process.
+\tool{} works by identifying valid characters for each index \textit{i}, starting with \textit{i=0} and incrementally building valid input strings using the discovered characters.
+Figure~\ref{fig:architecture} shows the overall architecture of \tool{}.
+
+\subsubsection{Finding Valid Characters}
 
 The process of finding valid characters for a given index is composed of two stages, the testing stage and the filtering stage.
-
-\subsubsection{Testing stage}
-
 During the testing stage, the program is executed with `perf' and given all of the printable characters, one at a time, as input.
-Each printable character results in a different program execution.
+The automatic interaction with the program is performed using `Expect', an extension to the `Tcl' scripting language [CITE]
+In our implementation, each printable character results in a different program execution.
 At the end of each execution, the number of instructions retired for that printable character is recorded in a dictionary.
 The difference in the number of instructions between various printable characters is a side effect of the input validation mechanism.
-The dictionary data structure is then used in the filtering stage to determine which characters are likely to be part of a valid input string for the given program.
-
-\subsubsection{Filtering stage}
+The dictionary data structure is used in the filtering stage to determine which characters are likely to be part of a valid input string for the given program.
 
 The filtering stage is responsible for identifying characters which are highly likely to be part of a valid input string at a given index.
 Using the dictionary obtained from the testing stage, the number of instructions retired are analyzed.
@@ -124,30 +156,82 @@ As discussed earlier, the input validation mechanism can be complex and can vary
 The validation mechanism may verify input against all accepted input strings before denying the provided input.
 Such a scenario may cause bad input to result in more instructions executed than valid input.
 
-\subsection{Building valid input string}
+When no valid characters are identified as part of the filtering stage and the current index is greater than 0, the end of a valid input string has been reached. If the index is 0, the given binary has no predefined input commands.
 
-In order to build valid input strings, ...
-The two stages are repeated for every index of the input string.
+\subsubsection{Building Input Strings}
 
-\section{Evaluation}
+\begin{figure*}[t]
+\centering
+\includegraphics[height=2in,width=6.5in]{string_builder.png}
+\label{fig:string_builder}
+\caption{}
+\end{figure*}
 
-- talk about interview problem [MAYBE?]
 
-\section{Results}
+Building valid input strings is a recursive process composed of multiple calls to the character finding component.
+Starting with an empty string and index 0, \tool{} tries to find valid characters at each index and incrementally builds valid input strings.
+More specifically, the process starts at index 0.
+Using the character finding technique, relevant characters for index 0 are identified.
+The task is forked \textit{n} times, where \textit{n} is the number of characters found at the current index (i.e. index 0).
+Each child task is assigned one of the \textit{n} characters and is responsible for finding valid characters at the next index.
+These steps are repeated until no valid characters are found, marking the end of the input string.
+Figure~\ref{fig:string_builder} depicts the process.
 
-\section{Limitations}
+\subsection{Finding Desired Input Size}
 
-Here are some limitations:
+The same side channels can be used to detect the expected size of the program's input or even the program's input buffer.
+Most programs are designed to read a predefined number of bytes from the standard input interface and store them in a buffer.
+When the program is given more input than the size of the buffer, additional instructions are executed.
+Our method observes such differences in the number of user-instructions retired as the program is given increasingly larger input.
 
-- programs that have random number of instructions executing to defeat side channels.
+To start, \tool{} finds all the invalid characters for index 0 of all input strings and picks one at random.
+The character selected is used to build invalid input strings of various sizes.
+It is crucial to use invalid input to avoid noisy fluctuations in the number of instructions executed due to valid input processing.
+Initially, the program is executed with short length input strings (i.e. two and three characters).
+The number of user-land instructions executed during these two executions are recorded.
+These two values may be equal or differ, depending on the program's logic.
+If the two values are equal [EQUAL]
+The two values can also differ because... [DIFFERENT]
 
-- programs that randomly generate input at each execution (this can be defeated by sampling number of instructions retired during one execution).
 
-- programs that do not have any particular rules for acceptable input, such as an echo program.
+\subsection{Classifying Input}
 
-- programs where input fields depend on each other.
+Our method is also capable of classifying the input discovered.
+Generated input strings are classified in three categories: alphabetic, numeric, alphanumeric.
+Similarly, the classification algorithm detects special characters.
+Once enough input strings have been identified, \tool{} uses the categorization data to generalize about the type of input the program expects.
+Such information is valuable especially in cases where the inputs discovered are all numeric or contain (one or more) special characters.
+Having learned such information about the program, the testing platform (e.g. fuzzer) can be adjusted to proceed accordingly.
 
-- programs that validate input fields out of order.
+\section{Evaluation and Results}
+
+\tool{} was tested on [NUMBER] closed-source binaries to measure its effectiveness.
+The results are summaried in Figure [FIGURE].
+Out of the total [NUMBER] binaries, [NUMBER2] had predefined accepted input strings.
+\tool{} found 100\% of the input strings for [NUMBER3]...
+[CONTINUE].
+
+Additionally, our method was tested on a binary used for technical interviews.
+The binary was designed as a reverse engineering challenge for interviewers.
+To pass the challenge, the interviewer has to crack the secret passcode to the program.
+A blog post describes the manual process used to crack the password [CITE].
+The manual process is tedious.
+As described in the blog post, the cracking of the binary can take several hours and requires advanced skills and years of background knowledge.
+\tool{} cracked the binary in a matter of minutes automatically, proving itself as a useful tool not only finding valid input but also cracking passwords.
+
+\section{Future Work and Limitations}
+
+The current implementation use `perf' to count instructions, which outputs only when the program executed exits.
+As a result, the tested program must be executed once with every input.
+This is not only a slow and inefficient process but also hinders the ability to crack programs which randomly generate passwords at execution time.
+In the future, we'd like to explore methods which allow sampling of instruction count during runtime.
+
+While the method presented in this paper has many advantages, it also has a few limitations.
+For certain programs, such as an echo server, our method is not any more efficient than a fuzzer.
+Additionally, our method cannot handle cases in which user input is composed of multiple inter-dependent fields or when programs validate fields of the input out of order.
 
 \section{Conclusions}
+
+
+
 \end{document}
