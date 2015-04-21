@@ -1,0 +1,103 @@
+\begin{thebibliography}{10}
+
+\bibitem{black2002black}
+J.~Black, P.~Rogaway, and T.~Shrimpton.
+\newblock Black-box analysis of the block-cipher-based hash-function
+  constructions from pgv.
+\newblock In {\em Advances in Cryptology--CRYPTO 2002}, pages 320--335.
+  Springer, 2002.
+
+\bibitem{exesymex}
+C.~Cadar, V.~Ganesh, P.~M. Pawlowski, D.~L. Dill, and D.~R. Engler.
+\newblock Exe: Automatically generating inputs of death.
+\newblock In {\em Proceedings of the 13th ACM Conference on Computer and
+  Communications Security}, CCS '06, pages 322--335, New York, NY, USA, 2006.
+  ACM.
+
+\bibitem{prospex}
+P.~Comparetti, G.~Wondracek, C.~Kruegel, and E.~Kirda.
+\newblock Prospex: Protocol specification extraction.
+\newblock In {\em Security and Privacy, 2009 30th IEEE Symposium on}, pages
+  110--125, May 2009.
+
+\bibitem{blanketexec}
+M.~Egele, M.~Woo, P.~Chapman, and D.~Brumley.
+\newblock Blanket execution: Dynamic similarity testing for program binaries
+  and components.
+\newblock In {\em 23rd USENIX Security Symposium (USENIX Security 14)}, pages
+  303--317, San Diego, CA, Aug. 2014. USENIX Association.
+
+\bibitem{genkinstealing}
+D.~Genkin, L.~Pachmanov, I.~Pipman, and E.~Tromer.
+\newblock Stealing keys from pcs using a radio: Cheap electromagnetic attacks
+  on windowed exponentiation.
+
+\bibitem{genkin2014rsa}
+D.~Genkin, A.~Shamir, and E.~Tromer.
+\newblock Rsa key extraction via low-bandwidth acoustic cryptanalysis.
+\newblock In {\em Advances in Cryptology--CRYPTO 2014}, pages 444--461.
+  Springer, 2014.
+
+\bibitem{symbolicexecution}
+J.~C. King.
+\newblock Symbolic execution and program testing.
+\newblock {\em Commun. ACM}, 19(7):385--394, July 1976.
+
+\bibitem{smartfuzzer}
+A.~Lanzi, L.~Martignoni, M.~Monga, and R.~Paleari.
+\newblock A smart fuzzer for x86 executables.
+\newblock In {\em Software Engineering for Secure Systems, 2007. SESS '07: ICSE
+  Workshops 2007. Third International Workshop on}, pages 7--7, May 2007.
+
+\bibitem{pintool}
+C.-K. Luk, R.~Cohn, R.~Muth, H.~Patil, A.~Klauser, G.~Lowney, S.~Wallace, V.~J.
+  Reddi, and K.~Hazelwood.
+\newblock Pin: Building customized program analysis tools with dynamic
+  instrumentation.
+\newblock {\em SIGPLAN Not.}, 40(6):190--200, June 2005.
+
+\bibitem{millerfuzz}
+B.~P. Miller, L.~Fredriksen, and B.~So.
+\newblock An empirical study of the reliability of unix utilities.
+\newblock {\em Commun. ACM}, 33(12):32--44, Dec. 1990.
+
+\bibitem{millerfuzzrevisited}
+B.~P. Miller, D.~Koski, C.~Pheow, L.~V. Maganty, R.~Murthy, A.~Natarajan, and
+  J.~Steidl.
+\newblock Fuzz revisited: A re-examination of the reliability of unix utilities
+  and services.
+\newblock 1995.
+
+\bibitem{molnar2009dynamic}
+D.~Molnar, X.~C. Li, and D.~Wagner.
+\newblock Dynamic test generation to find integer bugs in x86 binary linux
+  programs.
+\newblock In {\em USENIX Security Symposium}, pages 67--82, 2009.
+
+\bibitem{okeya2006side}
+K.~Okeya.
+\newblock Side channel attacks against hmacs based on block-cipher based hash
+  functions.
+\newblock In L.~Batten and R.~Safavi-Naini, editors, {\em Information Security
+  and Privacy}, volume 4058 of {\em Lecture Notes in Computer Science}, pages
+  432--443. Springer Berlin Heidelberg, 2006.
+
+\bibitem{schindler2002combined}
+W.~Schindler.
+\newblock A combined timing and power attack.
+\newblock In {\em Public Key Cryptography}, pages 263--279. Springer, 2002.
+
+\bibitem{weinbergside}
+Z.~Weinberg, E.~Chen, P.~Jayaraman, and C.~Jackson.
+\newblock I still know what you visited last summer: Leaking browsing history
+  via user interaction and side channel attacks.
+\newblock In {\em Security and Privacy (SP), 2011 IEEE Symposium on}, pages
+  147--161, May 2011.
+
+\bibitem{zhou2005side}
+Y.~Zhou and D.~Feng.
+\newblock Side-channel attacks: Ten years after its publication and the impacts
+  on cryptographic module security testing.
+\newblock {\em IACR Cryptology ePrint Archive}, 2005:388, 2005.
+
+\end{thebibliography}

@@ -1,5 +1,4 @@
-\documentclass[10pt,twocolumn]{article}
-\usepackage{multicol}
+\documentclass{acm_proc_article-sp}
 \usepackage{graphicx}
 
 % definitions
@@ -7,27 +6,34 @@
 
 \begin{document}
 
-\twocolumn[{%
-  \centering
-  \large \textbf{InputFinder: Reverse Engineering Closed Binaries via Side Channels} \\[2em]
-  Bogdan Copos, University of California, Davis\\
-  Praveen Murthy, Fujitsu Laboratories of America \\[4em]
-}]
+\title{InputFinder: Reverse Engineering Closed Binaries via Side Channels}
+\numberofauthors{2}
+\author{
+\alignauthor
+Bogdan Copos\\
+	\affaddr{University of California, Davis}\\
+	\email{bcopos@ucdavis.edu}
+\alignauthor
+Praveen Murthy\\
+	\affaddr{Fujitsu Laboratories of America}\\
+	\email{praveen.murthy@us.fujitsu.com}
+}
 
-
+\maketitle
 \begin{abstract}
 
-We propose a new approach for the autonomous generation of test suites for dynamic analysis of closed binaries and build a general tool called \tool{} for determining input for a closed binary and identifying the appropriate protocol (if any). 
+We propose a new approach for the autonomous generation of test suites for dynamic analysis of closed x86 binaries and build a tool called \tool{} for determining input for closed binarie and identifying the appropriate protocol (if any). 
 We show that (a) our technique can autonomously detect input, (b) one can easily leverage the results from our tool to build a sophisticated dynamic analysis tool, (c) the evaluation of \tool{} are on par and often exceed prior works designed for autonomous testing of programs, which we demonstrate by comparing \tool{}'s results with those of prior works on a set of binaries from XXX.
 Since \tool{}'s analysis 
-%
+
+% OR
 
 The effectiveness of dynamic analysis techniques depends heavily on the completeness of the test suite applied during the analysis process.
 Test suites are often composed by developers and aim at covering (and testing) all of the functionality of a software system.
 However, test suites may still not be complete, if they exist at all.
 To date, only two methods exist for automatically generating test input for closed binaries: black-box fuzzing and symbolic execution.
 Despite previous success methods in identifying bugs, both techniques have discouraging limitations.
-In this paper, we present a (novel?) method for automatically generating test suites for closed binaries.
+In this paper, we present a (novel?) method for automatically generating test suites for closed x86 binaries.
 To assess its effectiveness, we have developed \tool{} and tested it against XXXX binaries from XXXXX.
 With a success rate of XXXX, \tool{} 
 
@@ -37,7 +43,7 @@ With a success rate of XXXX, \tool{}
 
 %introduction
 Software testing is an expensive and labor intensive process.
-For many years, researchers have explored both static and dynamic methods for analyzing programs \cite{}.
+For many years, researchers have explored both static and dynamic methods for analyzing programs \cite{smartfuzzer}.
 While static analysis is thought to be more thorough, dynamic testing is often preferred due to its time efficiency.
 However, dynamic testing heavily depends on availability of input or test suites.
 
@@ -77,63 +83,99 @@ In Section 6 we discuss future work and limitations of the presented work.
 
 Side channels are streams of information that can be retrieved from the hardware of a device running a given program.
 This information can be used to learn about the program's internal components.
-Side channels have been widely explored by security researchers in order to exploit weaknesses in programs.
-In cryptography, side channel attacks exploit such information channels to defeat crypto systems.
-Recently, side channel attacks, such as OpenSSL's CREAM cache timing attack have made headlines. [CITE]
+Side channels have been widely explored by security researchers in order to exploit weaknesses in programs \cite{weinbergside, schindler2002combined, genkin2014rsa, genkinstealing}.
+In cryptography, side channel attacks exploit such information channels to defeat crypto systems \cite{zhou2005side, black2002black, okeya2006side}.
+Recently, side channel attacks, such as OpenSSL's CREAM cache timing attack have made headlines \cite{}.
 Similar to CREAM and other side channel attacks, the technique discussed in this paper exploits such information channels to generate valid input for binaries.
 
 \subsection{Hardware counter registers} \label{bg_hardwarereg}
 
 Most modern microprocessors have a set of special-purpose registers used to count hardware events.
 Each register, or counter, can be programmed to measure specific events such as cache misses, floating point operations, and even instructions executed.
+These hardware performance counters are often used by software developers to analyze their programs and improve on running time and efficiency.
+However, as we will show, such performance counters can also be exploited as side channels.
 Utilities, such as Linux/Unix `perf', take advantage of such hardware counters in order to provide developers with useful information about a program's performance.
-`perf' is a Unix tool which allows developers to specify the desired hardware event they wish to measure.
-Once events have been selected, `perf' interacts with kernel modules to program the hardware counters accordingly.
+`perf' allows developers to specify the desired hardware event they wish to measure.
+Once events have been selected, `perf' interacts with the appropriate kernel modules to program the hardware counters accordingly.
 In this work, we use `perf' to count the number of \textbf{user-land} instructions executed as a program is tested with various input.
 The number of total instructions retired oscillates significantly for a binary from execution to execution.
 This phenomena reflects fluctuations in instructions executed by the kernel depending on the state of the machine due to cache-misses and other factors.
 Since we rely on this count, such variations are problematic.
 However, experimentally, the number of user-land instructions only varies, on average, by one instruction, giving us a reliable counter.
 
-\subsection{Execution/Dynamic Similarity} \label{bg_dynamicsim}
+\subsection{Execution/Dynamic Matching} \label{bg_dynamicsim}
 
-
+In many application areas, including clone detection and software debugging, there is a need for comparing executions of a program (or multiple versions of a program).
+One of the proposed approaches aimed at tackling this issue is dynamic matching.
+Dynamic matching works by first collecting execution traces of different executions.
+Such traces can collected through a number of ways.
+One option includes the use of Pin \cite{pintool}.
+Pin is a framework for building customized binary analysis tools and can be used to design a tool which creates a transcript of the instructions executed by a program.
+Once the traces are collected, they are analyze and mappings between instructions of different executions are produced.
+These mappings can be used to understand the relationship between two executions (or two versions of a program).
+In this work, we rely on the concept of dynamic matching and the Pin framework to develop a protocol state machine generator for closed binaries.
 
 \section{Previous Work} \label{prevwork}
 
+Dynamic analysis has been extensively studied in academia and is used widely in the industry by security specialists.
+Two of the main approaches to finding bugs are fuzzing and symbolic execution.
+
 Fuzzers are a popular choice amongst software testers.
-They are easy to use, implement, and have produced surprising results in the past.
+They are easy to use, easy to implement, and have produced surprising results in the past \cite{millerfuzz, millerfuzzrevisited}.
 There are two classes of fuzzers: black box fuzzers and white box fuzzers.
 In black box fuzzing, the program is watched as it is tested with randomly generated input.
 If the program crashes, the input(s) are recorded and reported.
 No program specifications or knowledge of the input format is available in such cases.
+Since black box fuzzing is completely random, its effectiveness is limited, especially with respect to coverage.
 On the other hand, in white box fuzzing, inputs are used to gather symbolic constraints which are in turn systematically negated and solved to produce more inputs.
+The approach introduced in this paper is similar to white box fuzzing in that information from the program's execution is used to craft valid input.
 White box fuzzing differs from black box fuzzing in that it uses the program's feedback to make inferences about valid input and use constraint solvers to generate more input.
-Both fuzzing approaches have limitations.
-Since black box fuzzing is completely random, its effectiveness is limited, especially with respect to fully exercising programs.
-White box fuzzing can attain better code coverage but can be slow and can be crippled by innate limitations of constraint solvers.
-[MAYBE TALK ABOUT FUZZING RESULTS, CITATIONS]
+White box fuzzing can attain better code coverage but can be slow and is crippled by innate limitations of constraint solvers.
+One of the works utilizing white box fuzzing is \cite{molnar2009dynamic} which introduces SmartFuzz, a dynamic test generation tool.
+SmartFuzz works by using symbolic execution to learn about the program's input and passing that information to a fuzzer to generate test cases.
+The main difference between our work and SmartFuzz is that our work does not use symbolic execution to gain insight into the format of the input.
+Similarly to SmartFuzz, the output of our work can be used by a fuzzer to generate test cases.
+Another related work is presented in \cite{smartfuzzer}, where the authors use a combination of static and dynamic analysis to build a smart fuzzer.
+Their work uses static analysis to collect preliminary information such as an approximation of the inter procedural control flow graph.
+Having gathered static information, their dynamic engine executes the program while monitoring dependencies between the input and the dynamic control flow path experienced by the program.
+Their work also takes advantage of a constraint solver that given a path of the program generates input which forces the program to follow the chosen path.
+Our work \tool{} differs from \cite{smartfuzzer} in several ways.
+In our proposed methods, we do not use neither static analysis nor constraint solver.
+Instead we rely only on information extracted from the execution of the program. 
 
 Symbolic execution is another method used for generating valid input.
 In symbolic execution, an interpreter gathers constraints related to input throughout the program's execution, rather than using the provided input.
 At the end of the execution, a constraint solver takes the constraints gathered and outputs valid program input.
-Symbolic execution is studied extensively and can be effective [CITE].
-[TALK ABOUT ONE OF THE CITATIONS]
+Symbolic execution is studied extensively and can be effective \cite{symbolicexecution, exesymex}.
 Similar to white box fuzzing, symbolic execution has a fundamental limitation with respect to constraint solving.
 While symbolic execution engines perform well with linear constraints, non-linear constraints greatly impact efficiency.
-Furthermore, there is no autonomous symbolic execution engine.
-All symbolic executioners today require some instrumentation of the program to determine the program's input buffer.
-Some symbolic execution engines even require source code, which is not always available to the tester.
+One of the most important works in this area is described in \cite{exesymex} which introduces EXE, a dynamic analysis tool capable of generating inputs that crash programs by running the programs with symbolic input.
+Unlike symbolic execution, the approach presented in this paper is not hindered by constraint solvers' limitations and does not require any instrumentation or source code.
+\tool{} does not execute the program with symbolic input but rather it uses concolic input and information about the execution of the program to craft valid input.
 
-Side channel attacks and citations\ldots
+There have also been numerous works studying and applying dynamic similarity.
+In \cite{blanketexec}, the authors propose blanket execution, a novel dynamic equivalence testing technique.
+Blanket execution is designed to collect information about the execution of functions, including side effects, which is then used for similarity testing.
+Both our approach and blanket execution use a dynamic approach to gather information about the program.
+However, our approach aims at finding similarities in executions of entire programs (not just functions) with various inputs.
+This allows us to discover differences in inputs which experience different control flow paths.
 
-The method presented in this paper takes advantage of hardware counters to observe program's behavior and automatically build valid input.
-As opposed to fuzzers, where input is randomly generated, this approach uses side channels to intelligently compose valid program input.
-Also, unlike symbolic execution, this approach is not hindered by constraint solvers' limitations and does not require any instrumentation or source code.
+Another area of research relevant to this paper is protocol reverse engineering.
+An important result in this area is \cite{prospex} which introduces a technique for extracting protocol specifications from packet captures and automatically generating input which can be used by a stateful fuzzer.
+There are two notable difference between Prospex and our work.
+While the end result is similar, \tool{} assumes no prior knowledge about the tested program and hence it does not utilize packet captures for protocol specification extraction.
+Instead, \tool{} infers the protocol through dynamic analysis by automatically finding input and using that to generate a protocol state machine.
+To date, there are no protocol reverse engineering techniques which assume no prior knowledge about the program's input.
+
+\section{Motivating Example???} \label{example}
+
+
 
 \section{Methodology} \label{methodology}
 
 % add some high level intro for both finding input and psm stuff
+\tool{} is capable of find input strings for a closed binary and generating a protocol state machine using the crafted input.
+
 The majority of software programs accept input, perform transformations on the input and output results.
 However, most programs do not accept completely random input.
 Input usually passes through an input validation filter.
@@ -165,38 +207,6 @@ The steps of the process for finding valid input are outlined below. Starting wi
 \item For each valid character \textit{c}, \tool{} forks with every child process repeating steps 1-4, appending \textit{c} to the end of the string \textit{s}. If no valid characters are found, the end of a valid input string has been reached and the string is recorded. If the current index is 0 and no valid characters have been found, the given binary has no predefined input commands.
 \end{enumerate}
 
-Figure~\ref{fig:string_builder} depicts the results of the above process for 5 time stages.
-As seen in the figure, at time \textit{T0}, \tool{} begins with an empty string.
-At time \textit{T1}, \tool{} finds valid characters for index 0 of the input and is forked into \textit{n} child processes where \textit{n} is the number of valid characters found.
-The process continues until all child processes are done. 
-
-
-%\subsubsection{Finding Valid Characters}
-%The process of finding valid characters for a given index is composed of two stages: the testing stage and the filtering stage.
-%During the testing stage, the program is executed with `perf' and being provided as input, all of the printable characters, one at a time.
-%Once the program has processed the input and is waiting for more input, the program is stopped.
-%The automatic interaction with the program is performed using `Expect', an extension to the `Tcl' scripting language [CITE]
-%In our implementation, each printable character results in a different program execution.
-%At the end of each execution, the number of instructions retired is outputted by `perf'.
-%This information is saved in a dictionary as a tuple of the format ( <printable character> , <number of instructions> ).
-%As mentioned earlier, the differences in the number of instructions between various printable characters reflect different execution paths taken during the validation process.
-
-%The filtering stage is responsible for identifying characters which are highly likely to be part of a valid input string at a given index.
-%Using the dictionary data obtained from the testing stage, the number of instructions retired are analyzed.
-%First, the mode of the number of instructions executed is calculated.
-%The filtering of possible valid characters for a given index \textit{i}, of an input string \textit{s}, is based on the assumption that the majority of printable characters \textit{c} do not belong at index \textit{i} of string \textit{s} (i.e. \textit{c} $\notin$ \textit{s[i]}).
-%Therefore, valid characters are defined as any printable character for which the number of instructions retired is outside the mode.
-
-%Building valid input strings is a recursive process.
-%Starting with an empty string and index 0, \tool{} tries to find valid characters at each index and incrementally builds valid input strings.
-%More specifically, using the character finding technique described previously, relevant characters for index 0 are identified.
-%The task is forked \textit{n} times, where \textit{n} is the number of characters found at the current index (i.e. index 0).
-%Each child task is assigned one of the \textit{n} characters and is responsible for finding valid characters at the next index.
-%These steps are repeated until no valid characters are found, marking the end of the input string.
-%Figure~\ref{fig:string_builder} depicts the process.
-
-\subsubsection{Building Input Strings}
-
 \begin{figure*}[t]
 \centering
 \includegraphics[height=2in,width=6.5in]{string_builder.png}
@@ -204,6 +214,10 @@ The process continues until all child processes are done.
 \caption{}
 \end{figure*}
 
+Figure~\ref{fig:string_builder} depicts the results of the above process over the span of 5 time stages.
+As seen in the figure, at time \textit{T0}, \tool{} begins with an empty string.
+At time \textit{T1}, \tool{} finds valid characters for index 0 of the input and is forked into \textit{n} child processes where \textit{n} is the number of valid characters found.
+The process continues until all child processes are done.
 
 
 \subsection{Finding Desired Input Size}
@@ -237,8 +251,13 @@ Having learned such information about the program, the testing platform (e.g. fu
 
 \subsection{Generating Protocol State Machine}
 
+% TODO
+% add diagram depicting process
+% add explanation
+
 \section{Evaluation and Results}
 
+\subsection{Finding Input, Input Size and Classifying Input}
 \tool{} was tested on [NUMBER] closed-source binaries to measure its effectiveness.
 The results are summarized in Figure [FIGURE].
 Out of the total [NUMBER] binaries, [NUMBER2] had predefined accepted input strings.
@@ -251,7 +270,11 @@ To pass the challenge, the interviewer has to crack the secret passcode to the p
 A blog post describes the manual process used to crack the password [CITE].
 The manual process is tedious.
 As described in the blog post, the cracking of the binary can take several hours and requires advanced skills and years of background knowledge.
-\tool{} cracked the binary in a matter of minutes automatically, proving itself as a useful tool not only finding valid input but also cracking passwords.
+\tool{} cracked the binary in a matter of minutes autonomously, proving itself as a useful tool not only finding valid input but also cracking passwords.
+
+\subsection{Protocol State Machine Generation}
+
+% TODO
 
 \section{Future Work and Limitations}
 
@@ -259,8 +282,13 @@ While the method presented in this paper has many advantages, it also has a few 
 For certain programs that allow any input, such as an echo server, our method is not any more efficient than a fuzzer.
 Additionally, our method cannot handle cases in which input is composed of multiple inter-dependent fields or when programs validate input fields out of order.
 
+% TODO
+% talk about finding arguments
+
 \section{Conclusions}
 
 
+\bibliographystyle{abbrv}
+\bibliography{inputfinder}  % sigproc.bib is the name of the Bibliography in this case
 
 \end{document}
