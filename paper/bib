@@ -1,0 +1,14 @@
+@inproceedings {blanketexec,
+author = {Manuel Egele and Maverick Woo and Peter Chapman and David Brumley},
+title = {Blanket Execution: Dynamic Similarity Testing for Program Binaries and Components},
+booktitle = {23rd USENIX Security Symposium (USENIX Security 14)},
+year = {2014},
+month = Aug,
+isbn = {978-1-931971-15-7},
+address = {San Diego, CA},
+pages = {303-317},
+url = {https://www.usenix.org/conference/usenixsecurity14/technical-sessions/presentation/egele},
+publisher = {USENIX Association},
+}
+
+

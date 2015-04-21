@@ -1,0 +1,58 @@
+Automatic Exploration of Unknown Binaries
+=====================
+
+Two components:
+1) Finding input
+2) Monitoring state
+
+During the program's execution, we monitor the state and observe changes in the state as the program is fed input.
+
+Finding Input
+-------
+
+A proof of concept for automatically finding input for unknown binaries was initially written in Python and Except.
+The method counted the number of instructions, through the perf utility, as the program was given printable characters, one at a time.
+By analyzing and reasoning about the number of instructions executed for each character, the tool built valid input strings, one character at a time.
+However, the initial approach has some weaknesses.
+The perf utility does not allow for sampling and only produces the output when the binary is terminated.
+
+Monitoring State
+-------
+
+Based on the assumption that state is tracked using global and static variables, we observed memory operations and monitor memory operations on addresse in the .bss and .data sections.
+To accomplish this task, we build a Intel PIN tool (based on the pinatrace example).
+Our tool monitors read and write mem_ops, and outputs, the IP, type of mem op (R/W), the size of the mem op and the memory address being accessed.
+Simultaneously, we monitor memory addresses accesssed for both READ and WRITE to discover the address of global variables.
+Why both READ and WRITE?
+By looking at memory addresses in the .bss and .data sections that are both being read from and written to, we can deduct that these are state variables that are changing throughout the program's execution.
+The changing of the value of such state variables should also represent a change in state.
+Memory address only being read from may only be constants which may not be of great interest.
+
+
+Architecture
+-----
+
+PIN tool is launched, which starts the binary while dynamically loading the pin tool library created.
+As the program executes, we monitor state.
+When the program is sitting in IO, register the global state.
+Global state is addresses both RW (read from and written to), the size of the mem ops at those locations, and their value (if possible).
+Next, choices:
+- have input strings pre-discovered (perf)
+	- PRO: faster
+	- CON: will not find passwords
+- discover input strings (through PIN but how?)
+
+Once input strings have been discovered, try various combinations of the input strings and observe state.
+If state changes, an appropriate sequence of input strings has been discovered.
+
+
+Questions/Concerns
+------
+1. How do we know we advanced states and not go back?
+	- should we keep history of states?
+		- how do we tell two states are the same (variables can have different values)?
+
+
+Evaluation
+----
+1. Code coverage / time vs. fuzzing, symbolic exec
