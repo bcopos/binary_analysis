@@ -1,5 +1,10 @@
 \begin{thebibliography}{10}
 
+\bibitem{creamssl}
+T.~Arcieri.
+\newblock Cream: the scary ssl attack you've probably never heard of.
+\newblock 2014.
+
 \bibitem{black2002black}
 J.~Black, P.~Rogaway, and T.~Shrimpton.
 \newblock Black-box analysis of the block-cipher-based hash-function
@@ -20,12 +25,22 @@ P.~Comparetti, G.~Wondracek, C.~Kruegel, and E.~Kirda.
 \newblock In {\em Security and Privacy, 2009 30th IEEE Symposium on}, pages
   110--125, May 2009.
 
+\bibitem{darpacgc}
+DARPA.
+\newblock Cyber grand challenge binaries.
+\newblock \url{https://github.com/CyberGrandChallenge/samples}, 2014--2015.
+
 \bibitem{blanketexec}
 M.~Egele, M.~Woo, P.~Chapman, and D.~Brumley.
 \newblock Blanket execution: Dynamic similarity testing for program binaries
   and components.
 \newblock In {\em 23rd USENIX Security Symposium (USENIX Security 14)}, pages
   303--317, San Diego, CA, Aug. 2014. USENIX Association.
+
+\bibitem{interviewbinary}
+erenyagdiran.
+\newblock I was just asked to crack a program in a job interview !
+\newblock 2014.
 
 \bibitem{genkinstealing}
 D.~Genkin, L.~Pachmanov, I.~Pipman, and E.~Tromer.

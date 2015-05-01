@@ -1,0 +1,35 @@
+// Protocol depicting diagram
+// Bogdan Copos
+
+digraph hw {
+
+size = "5,4";
+ratio = "1";
+
+overlap = false;
+rankdir = "LR";
+ratio = "compress";
+
+
+node [shape = circle, fixedsize = true, width = 0.5] S0; S1; S2; S3; S4; S5; S6;
+node [shape = none, label = "START"] START;
+node [shape = doublecircle, label = ""] END;
+START -> S0 [label = "HELLO"];
+S0 -> S1 [label = "AUTH"];
+S1 -> S2 [label = "SET"];
+S1 -> S3 [label = "CALL"];
+
+START -> S4 [label = "AUTH"];
+S4 -> S5 [label = "SET"];
+S4 -> S6 [label = "CALL"];
+
+START -> END [label = "BYE"];
+S0 -> END [label = "BYE"];
+S1 -> END [label = "BYE"];
+S2 -> END [label = "BYE"];
+S3 -> END [label = "BYE"];
+S4 -> END [label = "BYE"];
+S5 -> END [label = "BYE"];
+S6 -> END [label = "BYE"];
+}
+
