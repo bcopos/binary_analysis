@@ -5,6 +5,7 @@
 
 % definitions
 \def \tool {InputFinder}  
+\def \numbinaries {24}
 
 \begin{document}
 
@@ -158,7 +159,7 @@ Instead, \tool{} infers the protocol through dynamic analysis by automatically f
 To date, there are no protocol reverse engineering techniques which assume no prior knowledge about the program's input.
 
 \section{Methodology} \label{methodology}
-% add some high level intro for both finding input and psm stuff
+
 \tool{} is composed of two main modules.
 The first module is responsible for discovering input and properties of the expected input, including input size and the type of the input.
 The input can then be used by the second component to generate a protocol state machine, information which may then be used by a stateful fuzzer.
@@ -234,14 +235,15 @@ At time \textit{T1}, \tool{} finds valid characters for index 0 of the input and
 The process continues until all child processes are done.
 
 \subsubsection{Finding Desired Input Size}
-The same side channels can be used to detect the expected size of the program's input or even the program's input buffer.
-Most programs are designed to read a predefined number of bytes from the source of input and store them in a buffer.
-Depending on the implementation, when a program is given more input than the size of the buffer, additional instructions may be executed.
-Regardless of the number of instructions executed, the behavior of the program changes.
-A program may exit when the number of provided bytes is larger than expected.
-Similarly, once the input buffer size limit has been reach, a program may check to see if the next byte is a newline or EOF.
-Some methods, such as C's `fgets()' function, read character by character [EXPLAIN]
-Our method observes such differences in the number of user-instructions retired as the program is given increasingly larger input.
+The same side channels can be used to detect the expected size of the program's input or even the size of the program's input buffer.
+Specifically, there is a change in the behavior of the program with respect to the number of instructions executed when the size of the input is larger than expected.
+Most programs are designed to read a predefined number of bytes from the source of input and store the read bytes in a buffer.
+A popular way of doing that is by using the \textit{fgets} or \textit{scanf} functions of the GNU C stdio library.
+As the input size grows, the number of instructions executed also increases linearly.
+This happens because additional instructions are executed to read more characters and store them into the buffer.
+However, when the input string is larger than the expected size the number of instructions executed no longer increases as a function of the input size.
+This behavior can be observed and exploited to find the expected input size, which may often also be the size of the input buffer.
+Our method observes such differences in the number of user-land instructions retired as the program is given increasingly larger input.
 
 To start, \tool{} finds the set of all invalid characters for index 0 of all input strings and picks one at random.
 The character selected is used to build invalid input strings of various sizes.
@@ -249,14 +251,19 @@ It is crucial to use invalid input to avoid noisy fluctuations in the number of 
 Initially, the program is executed with short length input strings (i.e. two and three characters).
 The number of user-land instructions executed during these two executions are recorded.
 These two values may be equal or differ, depending on the program's logic.
-If the two values are equal [EQUAL]
-The two values can also differ because... [DIFFERENT]
+If the two values are equal, the program is executed with increasingly large input until a change in the number of executions is recorded.
+%TODO
+The two values may be equal if the function responsible for reading input ..
+If the values differ (as discussed earlier), the difference in the number of instructions executed is recorded and the program is executed, increasing the size of the input, until a change is detected.
+Instead of increasing the input size linearly, the input size is increased exponentially until a change is detected.
+Once the change is detected, the input size is decreased to find the exact size at which the change happens.
 
 \subsubsection{Categorizing Input}
 Our method is also capable of classifying the input discovered.
 Generated input strings are classified in three categories: alphabetic, numeric, alphanumeric.
 Similarly, the classification algorithm detects special characters.
 Once enough input strings have been identified, \tool{} uses the categorization data to generalize about the type of input the program accepts.
+This is done by iterating through the characters of the input strings discovered and determining which category they fall into.
 Such information is valuable especially in cases where the inputs discovered are all numeric or contain (one or more) special characters.
 Having learned such information about the program, the testing platform (e.g. fuzzer) can be adjusted to proceed accordingly.
 
@@ -323,7 +330,7 @@ void compare_inputs(results, inputs) {
 \end{lstlisting}
 
 Once input has been discovered, \tool{} constructs a protocol state machine.
-The architecture of this component is depicted in Figure \ref{fig:XXXXpsm_arch}.
+The architecture of this component is depicted in Figure \ref{fig:psm_arch}.
 The process is describe below and shown as pseudocode in Listing \ref{lst:psmcode}.
 First, all possible permutations of all sizes from 1 to the number of input strings discovered are computed.
 Every permutation is passed through the dynamic analysis engine.
@@ -335,13 +342,12 @@ Once every input pertaining to a permutation has been tested for arguments, the 
 The binary is instrumented with a Pin tool, developed by us, which logs the instructions executed as a function of time.
 Once all permutations of a given size have been executed, the dynamic similarity test begins.
 This test splits each execution trace into parts, each part being associated with an input string.
-%Next, the execution trace part associated with the last input string in the permutation is transformed into the depth-first search (DFS) string representation of its control flow graph (CFG).
 We refer to the execution trace of the input string `SET' as $\alpha(SET)$.
-For all permutations of the same size with the same last input string, the $ [last_cmd] $ are clustered.
+For all permutations of the same size with the same last input string, the $\alpha(last_cmd)$ are clustered.
 Given a permutation $p$ of size $s$ let $\alpha(p_s)$ represent the execution trace of the command at index $s$ of the permutation (i.e. last command of the permutation).
-It is natural to assume that given the correct (or expected) order the of input strings $1$ through $(i-1)$ of the permutation, the last input of the permutation experiences a different execution trace (or control flow path) compared to that of the same command in an incorrect permutation (assuming it is the same index in the permutation).
-This information is then used to determine, for every input string discovered, if there exist a permutations which affects its control flow path.
-If such a permutation is discovered, it it added to the protocol state machine.
+It is natural to assume that given the correct (or expected) order the of input strings $1$ through $(i-1)$ of the permutation, the input $p_s$ experiences a different execution trace (or control flow path) compared to an incorrect permutation (assuming it is the same index in the permutation).
+This information is used to determine, for every input string discovered, if there exist a permutations which affects its control flow path.
+If such a permutation is discovered, it is added to the protocol state machine.
 
 \begin{figure}[h!]
 \caption{Example of protocol state machine for one of the DARPA Cyber Grand Challenge example binaries.}
@@ -356,18 +362,26 @@ The arrows represent input strings which allow for transition between states.
 
 \section{Evaluation and Results} \label{results}
 \subsection{Finding Input, Input Size and Classifying Input}
-\tool{} was tested on [NUMBER] closed-source binaries to measure its effectiveness.
-The results are summarized in Figure [FIGURE].
-Out of the total [NUMBER] binaries, [NUMBER2] had predefined accepted input strings.
-\tool{} found 100\% of the input strings for [NUMBER3]...
-[CONTINUE].
+\tool{} was tested on \numbinaries{} x86 binaries to measure its effectiveness from the DARPA Cyber Grand Challenge Example set \cite{darpacgc}.
+The results are summarized in Figure \ref{fig:findinputresults}.
+Analyzing the source code showed that out of the total \numbinaries{} binaries, 21 had predefined valid input strings.
+\tool{} found input strings for 14 of the 21 binaries and categorize the input correctly for 100\% of the 14 binaries.
+%TODO
+Our method was able to determine the input length for XXX of the binaries.
+
+\begin{figure}[h!]
+\caption{The results of our input finding method. `N/A' signifies that the binary did not have expect any predefined input strings but on the contrary accepted any input.}
+\centering
+\includegraphics[width=0.5\textwidth]{findinputresults}
+\label{fig:findinputresults}
+\end{figure}
 %To further show the advantage of this method, we built a smart fuzzer which uses our method to determine input and protocol for a given binary.
 %We use the smart fuzzer and compare it to black box fuzzers symbolic execution engines with respect to code coverage over units of time.
 %Using such a comparison allows the reader to determine which method is more efficient while also performing well.
 
 % 7f... tic tac toe, asks for player names first so without skipping those steps it cannot find any valid input
 
-Additionally, our method was tested on a binary used for technical interviews.
+Additionally, our input finding method was tested on a binary used for technical interviews.
 The binary was designed as a reverse engineering challenge for interviewers.
 To pass the challenge, the interviewer has to crack the secret passcode to the program.
 The blog post describes the manual process used to crack the password \cite{interviewbinary}.
@@ -378,7 +392,7 @@ As described in the blog post, the cracking of the binary can take several hours
 \subsection{Protocol State Machine Generation}
 % TODO
 The evaluation of the protocol state machine generator was also done using the DARPA Cyber Grand Challenge binaries.
-However, out of the total of [NUMBER] binaries, only [NUMBER] had an implicit protocol.
+However, out of the total of \numbinaries{} binaries, only [NUMBER] had an implicit protocol.
 Our method was able to generate a correct protocol state machine for [NUMBER]\% of these binaries.
 
 The reason for failure include ...
@@ -396,13 +410,17 @@ This shows that the input finding approach in combination with the protocol stat
 \section{Future Work and Limitations} \label{futurework}
 While the method presented in this paper has many advantages, it also has a few limitations.
 For certain programs that allow any input, such as an echo server, our method is not any more efficient than a black box fuzzer.
-Additionally, our method cannot handle cases in which input is composed of multiple inter-dependent fields, such as when the value of a field determines the length of another field.
-Also, \tool{} cannot handle programs which validate input fields out of order or use any safe hashing algorithm for their input validation technique. 
-In the future, we would like to apply the input finding technique recursively.
+Additionally, our method cannot handle cases in which input is composed of multiple inter-dependent fields, such as when the value of a field determines the length of another field and when binaries validate input fields out of order.
+This is one reason why our method failed to detect input for some of the binaries tested.
+Another reason of failure is binaries which accept non printable input (e.g. hex characters, binary, etc.).
+
+In the future, we wish to improve our current method.
+First, we would like to extend it to handle any type of input.
+Furthermore, we would like to apply the input finding technique recursively.
 It is easy to imagine programs for which the second input varies based on the value of the first input.
 Also, as we've experienced during our evaluation, there exist programs which first request for a username, input which will not have any predefined valid values.
 It would be helpful to determine such cases, provide some input and continue the execution of the program, applying the input finding technique once again.
-However, there are challenges with this, such as determining when to stop.
+However, there are challenges with this, such as determining when to not apply the finding input method because the program has reached an already observed and tested state.
 
 With respect to the protocol state machine, currently our method uses the input finding technique to determine valid arguments.
 However, the protocol state machine does not currently handle situations in which there are no predefined arguments (e.g. given input ``CREATE'' the arguments could be predefined such as ``dog'' or random such as ``x'').
@@ -413,7 +431,7 @@ There may be cases where this assumption does not hold.
 In the future, we would like build onto our current approach for generating protocol state machines. 
 First, we want to be able to determine if two states are identical for a more accurate protocol state machine.
 Furthermore, we want to determine a better approach for identifying the valid sequence of input strings.
-One option would be to monitor other aspects of the program, particularly the \textit{.data}, \text{.bss}, and the heap during the executions.
+One option would be to monitor other aspects of the program, particularly the \textit{.data}, \textit{.bss}, and the heap during the executions.
 Changes in these may reflect changes of the state of the program.
 
 
@@ -423,7 +441,7 @@ For generating valid input strings, our method exploits the number of instructio
 This process allows us to recursively and incrementally craft valid inputs.
 To further gain knowledge about the user interaction with the program, we test the program with the inputs generated and construct a protocol state machine which depicts the expected order of the input strings.
 
-We show that our proposed methods are efficient and successful by testing them on [NUMBER] DARPA binaries from the Cyber Grand Challenge \cite{darpacgc}. 
+We show that our proposed methods are efficient and successful by testing them on \numbinaries{} DARPA binaries from the Cyber Grand Challenge \cite{darpacgc}. 
 Unlike previous works, our methods do not have any fundamental limitations (such as constraint solvers) and are robust enough to handle even binaries of other formats.
 
 We believe that the our techniques could be applied and used for a number of reasons including building test suites, discovering unwanted or unexpected control flow paths and even finding bugs (when used in combination with a fuzzer).
