@@ -53,6 +53,14 @@ D.~Genkin, A.~Shamir, and E.~Tromer.
 \newblock In {\em Advances in Cryptology--CRYPTO 2014}, pages 444--461.
   Springer, 2014.
 
+\bibitem{differential}
+N.~M. Johnson, J.~Caballero, K.~Z. Chen, S.~McCamant, P.~Poosankam, D.~Reynaud,
+  and D.~Song.
+\newblock Differential slicing: Identifying causal execution differences for
+  security applications.
+\newblock In {\em Security and Privacy (SP), 2011 IEEE Symposium on}, pages
+  347--362. IEEE, 2011.
+
 \bibitem{symbolicexecution}
 J.~C. King.
 \newblock Symbolic execution and program testing.

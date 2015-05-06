@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99d (TeX Live 2012)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: main.aux
+The style file: abbrv.bst
+Database file #1: inputfinder.bib
+Warning--empty journal in creamssl
+Warning--empty journal in interviewbinary
+Warning--empty journal in genkinstealing
+Warning--empty year in genkinstealing
+Warning--empty journal in millerfuzzrevisited
+You've used 20 entries,
+            2118 wiz_defined-function locations,
+            613 strings with 7367 characters,
+and the built_in function-call counts, 8296 in all, are:
+= -- 816
+> -- 402
+< -- 12
++ -- 161
+- -- 138
+* -- 571
+:= -- 1302
+add.period$ -- 66
+call.type$ -- 20
+change.case$ -- 128
+chr.to.int$ -- 0
+cite$ -- 25
+duplicate$ -- 342
+empty$ -- 632
+format.name$ -- 138
+if$ -- 1805
+int.to.chr$ -- 0
+int.to.str$ -- 20
+missing$ -- 19
+newline$ -- 102
+num.names$ -- 42
+pop$ -- 162
+preamble$ -- 1
+purify$ -- 108
+quote$ -- 0
+skip$ -- 261
+stack$ -- 0
+substring$ -- 489
+swap$ -- 117
+text.length$ -- 12
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 80
+warning$ -- 5
+while$ -- 76
+width$ -- 22
+write$ -- 222
+(There were 5 warnings)
