@@ -1,4 +1,4 @@
-This is BibTeX, Version 0.99d (TeX Live 2012)
+This is BibTeX, Version 0.99d (TeX Live 2014)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: main.aux
 The style file: abbrv.bst
@@ -8,45 +8,45 @@ Warning--empty journal in interviewbinary
 Warning--empty journal in genkinstealing
 Warning--empty year in genkinstealing
 Warning--empty journal in millerfuzzrevisited
-You've used 20 entries,
+You've used 22 entries,
             2118 wiz_defined-function locations,
-            613 strings with 7367 characters,
-and the built_in function-call counts, 8296 in all, are:
-= -- 816
-> -- 402
-< -- 12
-+ -- 161
-- -- 138
-* -- 571
-:= -- 1302
-add.period$ -- 66
-call.type$ -- 20
-change.case$ -- 128
+            625 strings with 7686 characters,
+and the built_in function-call counts, 9282 in all, are:
+= -- 920
+> -- 438
+< -- 15
++ -- 175
+- -- 150
+* -- 631
+:= -- 1440
+add.period$ -- 73
+call.type$ -- 22
+change.case$ -- 139
 chr.to.int$ -- 0
-cite$ -- 25
-duplicate$ -- 342
-empty$ -- 632
-format.name$ -- 138
-if$ -- 1805
+cite$ -- 27
+duplicate$ -- 388
+empty$ -- 714
+format.name$ -- 150
+if$ -- 2034
 int.to.chr$ -- 0
-int.to.str$ -- 20
-missing$ -- 19
-newline$ -- 102
-num.names$ -- 42
-pop$ -- 162
+int.to.str$ -- 22
+missing$ -- 21
+newline$ -- 112
+num.names$ -- 46
+pop$ -- 178
 preamble$ -- 1
-purify$ -- 108
+purify$ -- 117
 quote$ -- 0
-skip$ -- 261
+skip$ -- 302
 stack$ -- 0
-substring$ -- 489
-swap$ -- 117
-text.length$ -- 12
+substring$ -- 563
+swap$ -- 140
+text.length$ -- 15
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 80
+type$ -- 88
 warning$ -- 5
-while$ -- 76
-width$ -- 22
-write$ -- 222
+while$ -- 86
+width$ -- 24
+write$ -- 246
 (There were 5 warnings)

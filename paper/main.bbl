@@ -53,6 +53,11 @@ D.~Genkin, A.~Shamir, and E.~Tromer.
 \newblock In {\em Advances in Cryptology--CRYPTO 2014}, pages 444--461.
   Springer, 2014.
 
+\bibitem{godefroid2008automated}
+P.~Godefroid, M.~Y. Levin, D.~A. Molnar, et~al.
+\newblock Automated whitebox fuzz testing.
+\newblock In {\em NDSS}, volume~8, pages 151--166, 2008.
+
 \bibitem{differential}
 N.~M. Johnson, J.~Caballero, K.~Z. Chen, S.~McCamant, P.~Poosankam, D.~Reynaud,
   and D.~Song.
@@ -109,6 +114,12 @@ K.~Okeya.
 W.~Schindler.
 \newblock A combined timing and power attack.
 \newblock In {\em Public Key Cryptography}, pages 263--279. Springer, 2002.
+
+\bibitem{weaver2008can}
+V.~M. Weaver and S.~A. McKee.
+\newblock Can hardware performance counters be trusted?
+\newblock In {\em Workload Characterization, 2008. IISWC 2008. IEEE
+  International Symposium on}, pages 141--150. IEEE, 2008.
 
 \bibitem{weinbergside}
 Z.~Weinberg, E.~Chen, P.~Jayaraman, and C.~Jackson.
