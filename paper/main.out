@@ -1,9 +1,9 @@
 \BOOKMARK [1][-]{section.1}{Introduction}{}% 1
-\BOOKMARK [1][-]{section.2}{Background}{}% 2
-\BOOKMARK [2][-]{subsection.2.1}{Side Channels}{section.2}% 3
-\BOOKMARK [2][-]{subsection.2.2}{Hardware counter registers}{section.2}% 4
-\BOOKMARK [2][-]{subsection.2.3}{Execution/Dynamic Matching}{section.2}% 5
-\BOOKMARK [1][-]{section.3}{Previous Work}{}% 6
+\BOOKMARK [1][-]{section.2}{Previous Work}{}% 2
+\BOOKMARK [1][-]{section.3}{Background}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Side Channels}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Hardware counter registers}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.3}{Execution/Dynamic Matching}{section.3}% 6
 \BOOKMARK [1][-]{section.4}{Methodology}{}% 7
 \BOOKMARK [2][-]{subsection.4.1}{Finding Valid Input}{section.4}% 8
 \BOOKMARK [3][-]{subsubsection.4.1.1}{Finding Desired Input Size}{subsection.4.1}% 9
@@ -16,3 +16,6 @@
 \BOOKMARK [1][-]{section.6}{Future Work and Limitations}{}% 16
 \BOOKMARK [1][-]{section.7}{Conclusions}{}% 17
 \BOOKMARK [1][-]{section.8}{References}{}% 18
+\BOOKMARK [1][-]{appendix.A}{Input Validation Code Snippets}{}% 19
+\BOOKMARK [2][-]{subsection.A.1}{Example 1}{appendix.A}% 20
+\BOOKMARK [2][-]{subsection.A.2}{Example 2}{appendix.A}% 21

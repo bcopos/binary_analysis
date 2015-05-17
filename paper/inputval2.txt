@@ -1,0 +1,15 @@
+int main(void)
+{
+  char buf[128];
+  size_t rx_bytes;
+  int ret = 0;
+  
+  do
+  { 
+    ret = receive(STDIN, buf, 256, &rx_bytes);
+    
+    if ( (ret != 0) || (rx_bytes == 0) )
+    {
+      return (-1);
+    }
+ ...

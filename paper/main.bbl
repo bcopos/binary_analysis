@@ -1,9 +1,17 @@
 \begin{thebibliography}{10}
 
+\bibitem{zzuf}
+{zzuf}: Multi-purpose fuzzer.
+\newblock \url{http://caca.zoy.org/wiki/zzuf}.
+
 \bibitem{creamssl}
 T.~Arcieri.
 \newblock Cream: the scary ssl attack you've probably never heard of.
 \newblock 2014.
+
+\bibitem{bitblazesite}
+{BitBlaze}: Binary analysis for computer security.
+\newblock \url{http://bitblaze.cs.berkeley.edu/}.
 
 \bibitem{black2002black}
 J.~Black, P.~Rogaway, and T.~Shrimpton.
@@ -11,6 +19,13 @@ J.~Black, P.~Rogaway, and T.~Shrimpton.
   constructions from pgv.
 \newblock In {\em Advances in Cryptology--CRYPTO 2002}, pages 320--335.
   Springer, 2002.
+
+\bibitem{polyglot}
+J.~Caballero, H.~Yin, Z.~Liang, and D.~Song.
+\newblock Polyglot: Automatic extraction of protocol message format using
+  dynamic binary analysis.
+\newblock In {\em Proceedings of the 14th ACM conference on Computer and
+  communications security}, pages 317--329. ACM, 2007.
 
 \bibitem{exesymex}
 C.~Cadar, V.~Ganesh, P.~M. Pawlowski, D.~L. Dill, and D.~R. Engler.
@@ -29,6 +44,12 @@ P.~Comparetti, G.~Wondracek, C.~Kruegel, and E.~Kirda.
 DARPA.
 \newblock Cyber grand challenge binaries.
 \newblock \url{https://github.com/CyberGrandChallenge/samples}, 2014--2015.
+
+\bibitem{fuzzball}
+DARPA.
+\newblock {FuzzBALL} vine-based binary symbolic execution.
+\newblock \url{http://bitblaze.cs.berkeley.edu/fuzzball.html}, 2014--2015.
+\newblock \url{http://bitblaze.cs.berkeley.edu/fuzzball.html}.
 
 \bibitem{blanketexec}
 M.~Egele, M.~Woo, P.~Chapman, and D.~Brumley.
@@ -114,6 +135,14 @@ K.~Okeya.
 W.~Schindler.
 \newblock A combined timing and power attack.
 \newblock In {\em Public Key Cryptography}, pages 263--279. Springer, 2002.
+
+\bibitem{bitblaze}
+D.~Song, D.~Brumley, H.~Yin, J.~Caballero, I.~Jager, M.~G. Kang, Z.~Liang,
+  J.~Newsome, P.~Poosankam, and P.~Saxena.
+\newblock {BitBlaze}: A new approach to computer security via binary analysis.
+\newblock In {\em Proceedings of the 4th International Conference on
+  Information Systems Security. Keynote invited paper.}, Hyderabad, India, Dec.
+  2008.
 
 \bibitem{weaver2008can}
 V.~M. Weaver and S.~A. McKee.

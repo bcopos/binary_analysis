@@ -1,0 +1,51 @@
+while (readuntil(STDIN, buf, sizeof(buf), '\n') > 0)
+    {
+        char *tok, *input = buf;
+        tok = strsep(&input, " ");
+        if (tok == NULL)
+            break;
+        if (strcmp(tok, "CREATE") == 0)
+        {
+            tok = strsep(&input, " ");
+            if (tok == NULL)
+                break;
+            if (strcmp(tok, "DATABASE") == 0)
+                handle_create_database(input);
+            else if (strcmp(tok, "TABLE") == 0)
+                handle_create_table(input);
+            else
+                break;
+        }
+        else if (strcmp(tok, "INSERT") == 0)
+        {
+            tok = strsep(&input, " ");
+            if (tok == NULL)
+                break;
+            if (strcmp(tok, "INTO") == 0)
+                handle_insert_into(input);
+        }
+        else if (strcmp(tok, "DELETE") == 0)
+        {
+            tok = strsep(&input, " ");
+            if (tok == NULL)
+                break;
+            if (strcmp(tok, "FROM") == 0)
+                handle_delete_from(input);
+        }
+        else if (strcmp(tok, "SELECT") == 0)
+        {
+            tok = strsep(&input, " ");
+            if (tok == NULL)
+                break;
+            if (strcmp(tok, "FROM") == 0)
+                handle_select_from(input);
+        }
+        else if (strcmp(tok, "STATS") == 0)
+        {
+            handle_stats(input);
+        }
+        else
+            fdprintf(STDOUT, "Invalid query!\n");
+    }
+
+

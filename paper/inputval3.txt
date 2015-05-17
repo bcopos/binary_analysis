@@ -1,0 +1,110 @@
+int process(program_state *s) {
+    int ret;
+    size_t size;
+    char *name;
+    char *args;
+    process_t method;
+
+	while (1) {
+        memset(s->input_buf, 0, sizeof(s->input_buf));
+        transmit_str(STDOUT, "> ");
+
+        if (0 != receive(0, s->input_buf, sizeof(s->input_buf) - 1, &size)) {
+            return -1;
+        }
+
+        remove_newline(s->input_buf);
+
+        if (strlen(s->input_buf) == 0)
+            continue;
+
+        name = strtok(s->input_buf, " ");
+        args = strtok(NULL, "\x00");
+
+        if (strlen(name) >= COMMAND_NAME_SIZE)
+            return -1;
+
+        method = get_command(s, name);
+
+        if (method == NULL) {
+            transmit_str(STDOUT, "invalid command: ");
+            transmit_str(STDOUT, name);
+            transmit_str(STDOUT, "\n");
+            continue;
+        }
+
+        ret = (method)(s, args);
+        
+        if (ret == -1) {
+            transmit_str(STDOUT, "command failed: ");
+            transmit_str(STDOUT, name);
+            transmit_str(STDOUT, "\n");
+            return -1;
+        }
+
+        if (ret == 0) {
+            return 0;
+        }
+    }
+}
+
+
+int main(void) {
+	...
+	node_0x40f0.value = 99; /* c */
+	node_0x40f0.method = &cmd_ch_sec;
+	node_0x40d0.value = 101; /* e */
+	node_0x40d0.child = &node_0x40f0;
+	node_0x40b0.value = 115; /* s */
+	node_0x40b0.child = &node_0x40d0;
+	node_0x4090.value = 95; /* _ */
+	node_0x4090.child = &node_0x40b0;
+	node_0x4070.value = 104; /* h */
+	node_0x4070.child = &node_0x4090;
+	node_0x4050.value = 115; /* s */
+	node_0x4050.method = &cmd_compress;
+	node_0x4030.value = 115; /* s */
+	node_0x4030.child = &node_0x4050;
+	node_0x4010.value = 101; /* e */
+	node_0x4010.child = &node_0x4030;
+	node_0x3ff0.value = 114; /* r */
+	node_0x3ff0.child = &node_0x4010;
+	node_0x3fd0.value = 112; /* p */
+	node_0x3fd0.child = &node_0x3ff0;
+	node_0x3fb0.value = 109; /* m */
+	node_0x3fb0.child = &node_0x3fd0;
+	node_0x3f90.value = 111; /* o */
+	node_0x3f90.sibling = &node_0x4070;
+	node_0x3f90.child = &node_0x3fb0;
+	node_0x3f70.value = 99; /* c */
+	node_0x3f70.method = &cmd_cur_sec;
+	node_0x3f50.value = 101; /* e */
+	node_0x3f50.child = &node_0x3f70;
+	...
+	node_0x3c70.value = 112; /* p */
+	node_0x3c70.sibling = &node_0x3cd0;
+	node_0x3c70.child = &node_0x3c90;
+	node_0x3c50.value = 116; /* t */
+	node_0x3c50.method = &cmd_quit;
+	node_0x3c30.value = 105; /* i */
+	node_0x3c30.child = &node_0x3c50;
+	node_0x3c10.value = 117; /* u */
+	node_0x3c10.child = &node_0x3c30;
+	node_0x3bf0.value = 113; /* q */
+	node_0x3bf0.sibling = &node_0x3c70;
+	node_0x3bf0.child = &node_0x3c10;
+	node_0x3bd0.value = 104; /* h */
+	node_0x3bd0.method = &cmd_search;
+	node_0x3bb0.value = 99; /* c */
+	node_0x3bb0.child = &node_0x3bd0;
+	node_0x3b90.value = 114; /* r */
+	node_0x3b90.child = &node_0x3bb0;
+	node_0x3b70.value = 97; /* a */
+	node_0x3b70.child = &node_0x3b90;
+	node_0x3b50.value = 101; /* e */
+	node_0x3b50.child = &node_0x3b70;
+	s.command_list.value = 115; /* s */
+	s.command_list.sibling = &node_0x3bf0;
+	s.command_list.child = &node_0x3b50;
+	...
+}
