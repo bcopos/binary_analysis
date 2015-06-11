@@ -86,6 +86,18 @@ TODO:
 	- size of r/w operations via IARG_MEMORYREAD_SIZE
 		- not the size of the variable
 
+PIN TOOL
+-------
+
+pin -t pinatrace.so -- /path/to/binary
+
+run this where pinatrace.so is located (https://software.intel.com/sites/landingpage/pintool/docs/49306/Pin/html/index.html#EXAMPLES)
+
+
+Output:
+1st column - IP
+2nd column - R/W
+3rd column - memory address
 
 LINKS:
 -----
