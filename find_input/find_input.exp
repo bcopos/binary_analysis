@@ -1,0 +1,42 @@
+#!/usr/bin/expect
+
+
+#set BINARY "~/samples/templates/service-template/bin/LUNGE_00001"
+#set BINARY "/home/vagrant/samples/examples/LUNGE_00002/bin/LUNGE_00002"
+#set BINARY "/home/vagrant/samples/examples/KPRCA_00001/bin/KPRCA_00001"
+#set BINARY "/home/vagrant/samples/examples/KPRCA_00003/bin/KPRCA_00003"
+#set BINARY "/home/vagrant/samples/examples/YAN01_00001/bin/YAN01_00001"
+#set BINARY "/home/vagrant/samples/examples/YAN01_00002/bin/YAN01_00002"
+#set BINARY "/home/vagrant/samples/examples/CADET_00001/bin/CADET_00001"
+#set BINARY "/home/vagrant/samples/examples/EAGLE_00004/bin/EAGLE_00004_1"
+
+set INPUT [lindex $argv 0]
+set BINARY [lindex $argv 1]
+set NEWLINE "\n"
+set STRING $INPUT$NEWLINE
+set TIMEOUT 1
+set timeout $TIMEOUT
+
+if { $argc < 2} {
+	puts "The script requires two arguments: "
+	puts "1. input string"
+	puts "2. binary (with path)"
+	puts "e.g. expect_input a /path/to/binary"
+	exit 1
+}
+
+log_user 0
+spawn /usr/bin/perf stat -e instructions:u $BINARY
+log_user 1
+
+sleep 0.2
+if {[ catch { send -- "$STRING" } err ]} {
+	exit 1
+}
+expect eof
+sleep 0.5
+if {[ catch { send -- "\003\r" } err ]} {
+	exit 1
+}
+expect ".*instructions:u"
+exit 0

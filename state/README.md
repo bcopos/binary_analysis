@@ -1,6 +1,8 @@
 Determining State and State Changes
 =======================
 
+** PIN tool is under the pin directory **
+
 State:
 - represented as variables (saved to memory) whose value may change throughout a program's execution
 - what changes during program execution?
@@ -9,10 +11,9 @@ State:
 
 
 EXPECTED BEHAVIOR:
-	- program writes state variable (local or global) to memory
-	- program reads state
-
-		or vice versa
+- program writes state variable (local or global) to memory
+- program reads state
+or vice versa
 
 CHALLENGES:
 ---------
