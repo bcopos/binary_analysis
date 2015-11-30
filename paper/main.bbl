@@ -4,22 +4,6 @@
 {zzuf}: Multi-purpose fuzzer.
 \newblock \url{http://caca.zoy.org/wiki/zzuf}.
 
-\bibitem{creamssl}
-T.~Arcieri.
-\newblock Cream: the scary ssl attack you've probably never heard of.
-\newblock 2014.
-
-\bibitem{bitblazesite}
-{BitBlaze}: Binary analysis for computer security.
-\newblock \url{http://bitblaze.cs.berkeley.edu/}.
-
-\bibitem{black2002black}
-J.~Black, P.~Rogaway, and T.~Shrimpton.
-\newblock Black-box analysis of the block-cipher-based hash-function
-  constructions from pgv.
-\newblock In {\em Advances in Cryptology--CRYPTO 2002}, pages 320--335.
-  Springer, 2002.
-
 \bibitem{polyglot}
 J.~Caballero, H.~Yin, Z.~Liang, and D.~Song.
 \newblock Polyglot: Automatic extraction of protocol message format using
@@ -45,47 +29,15 @@ DARPA.
 \newblock Cyber grand challenge binaries.
 \newblock \url{https://github.com/CyberGrandChallenge/samples}, 2014--2015.
 
-\bibitem{fuzzball}
-DARPA.
-\newblock {FuzzBALL} vine-based binary symbolic execution.
-\newblock \url{http://bitblaze.cs.berkeley.edu/fuzzball.html}, 2014--2015.
-\newblock \url{http://bitblaze.cs.berkeley.edu/fuzzball.html}.
-
-\bibitem{blanketexec}
-M.~Egele, M.~Woo, P.~Chapman, and D.~Brumley.
-\newblock Blanket execution: Dynamic similarity testing for program binaries
-  and components.
-\newblock In {\em 23rd USENIX Security Symposium (USENIX Security 14)}, pages
-  303--317, San Diego, CA, Aug. 2014. USENIX Association.
-
 \bibitem{interviewbinary}
 erenyagdiran.
 \newblock I was just asked to crack a program in a job interview !
 \newblock 2014.
 
-\bibitem{genkinstealing}
-D.~Genkin, L.~Pachmanov, I.~Pipman, and E.~Tromer.
-\newblock Stealing keys from pcs using a radio: Cheap electromagnetic attacks
-  on windowed exponentiation.
-
-\bibitem{genkin2014rsa}
-D.~Genkin, A.~Shamir, and E.~Tromer.
-\newblock Rsa key extraction via low-bandwidth acoustic cryptanalysis.
-\newblock In {\em Advances in Cryptology--CRYPTO 2014}, pages 444--461.
-  Springer, 2014.
-
 \bibitem{godefroid2008automated}
 P.~Godefroid, M.~Y. Levin, D.~A. Molnar, et~al.
 \newblock Automated whitebox fuzz testing.
 \newblock In {\em NDSS}, volume~8, pages 151--166, 2008.
-
-\bibitem{differential}
-N.~M. Johnson, J.~Caballero, K.~Z. Chen, S.~McCamant, P.~Poosankam, D.~Reynaud,
-  and D.~Song.
-\newblock Differential slicing: Identifying causal execution differences for
-  security applications.
-\newblock In {\em Security and Privacy (SP), 2011 IEEE Symposium on}, pages
-  347--362. IEEE, 2011.
 
 \bibitem{symbolicexecution}
 J.~C. King.
@@ -105,6 +57,11 @@ C.-K. Luk, R.~Cohn, R.~Muth, H.~Patil, A.~Klauser, G.~Lowney, S.~Wallace, V.~J.
   instrumentation.
 \newblock {\em SIGPLAN Not.}, 40(6):190--200, June 2005.
 
+\bibitem{fuzzball}
+S.~McCamant et~al.
+\newblock {FuzzBALL} vine-based binary symbolic execution.
+\newblock \url{http://bitblaze.cs.berkeley.edu/fuzzball.html}, 2014--2015.
+
 \bibitem{millerfuzz}
 B.~P. Miller, L.~Fredriksen, and B.~So.
 \newblock An empirical study of the reliability of unix utilities.
@@ -123,44 +80,17 @@ D.~Molnar, X.~C. Li, and D.~Wagner.
   programs.
 \newblock In {\em USENIX Security Symposium}, pages 67--82, 2009.
 
-\bibitem{okeya2006side}
-K.~Okeya.
-\newblock Side channel attacks against hmacs based on block-cipher based hash
-  functions.
-\newblock In L.~Batten and R.~Safavi-Naini, editors, {\em Information Security
-  and Privacy}, volume 4058 of {\em Lecture Notes in Computer Science}, pages
-  432--443. Springer Berlin Heidelberg, 2006.
-
-\bibitem{schindler2002combined}
-W.~Schindler.
-\newblock A combined timing and power attack.
-\newblock In {\em Public Key Cryptography}, pages 263--279. Springer, 2002.
-
 \bibitem{bitblaze}
-D.~Song, D.~Brumley, H.~Yin, J.~Caballero, I.~Jager, M.~G. Kang, Z.~Liang,
-  J.~Newsome, P.~Poosankam, and P.~Saxena.
+D.~Song, D.~Brumley, et~al.
 \newblock {BitBlaze}: A new approach to computer security via binary analysis.
 \newblock In {\em Proceedings of the 4th International Conference on
-  Information Systems Security. Keynote invited paper.}, Hyderabad, India, Dec.
-  2008.
+  Information Systems Security. Keynote invited paper.}, Hyderabad, India.
+\newblock \url{http://bitblaze.cs.berkeley.edu/}.
 
 \bibitem{weaver2008can}
 V.~M. Weaver and S.~A. McKee.
 \newblock Can hardware performance counters be trusted?
 \newblock In {\em Workload Characterization, 2008. IISWC 2008. IEEE
   International Symposium on}, pages 141--150. IEEE, 2008.
-
-\bibitem{weinbergside}
-Z.~Weinberg, E.~Chen, P.~Jayaraman, and C.~Jackson.
-\newblock I still know what you visited last summer: Leaking browsing history
-  via user interaction and side channel attacks.
-\newblock In {\em Security and Privacy (SP), 2011 IEEE Symposium on}, pages
-  147--161, May 2011.
-
-\bibitem{zhou2005side}
-Y.~Zhou and D.~Feng.
-\newblock Side-channel attacks: Ten years after its publication and the impacts
-  on cryptographic module security testing.
-\newblock {\em IACR Cryptology ePrint Archive}, 2005:388, 2005.
 
 \end{thebibliography}

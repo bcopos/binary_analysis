@@ -1,0 +1,56 @@
+This is BibTeX, Version 0.99d (TeX Live 2015)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: main.aux
+The style file: abbrv.bst
+Database file #1: inputfinder.bib
+I was expecting a `,' or a `}'---line 297 of file inputfinder.bib
+ :   
+ :   year = 2008,
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+Warning--to sort, need author or key in zzuf
+Warning--empty journal in interviewbinary
+Warning--empty journal in millerfuzzrevisited
+Warning--empty year in bitblaze
+You've used 16 entries,
+            2118 wiz_defined-function locations,
+            589 strings with 6498 characters,
+and the built_in function-call counts, 6193 in all, are:
+= -- 603
+> -- 308
+< -- 8
++ -- 124
+- -- 106
+* -- 420
+:= -- 974
+add.period$ -- 51
+call.type$ -- 16
+change.case$ -- 98
+chr.to.int$ -- 0
+cite$ -- 20
+duplicate$ -- 243
+empty$ -- 483
+format.name$ -- 106
+if$ -- 1339
+int.to.chr$ -- 0
+int.to.str$ -- 16
+missing$ -- 13
+newline$ -- 83
+num.names$ -- 30
+pop$ -- 134
+preamble$ -- 1
+purify$ -- 82
+quote$ -- 0
+skip$ -- 190
+stack$ -- 0
+substring$ -- 343
+swap$ -- 78
+text.length$ -- 8
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 64
+warning$ -- 4
+while$ -- 55
+width$ -- 18
+write$ -- 175
+(There was 1 error message)

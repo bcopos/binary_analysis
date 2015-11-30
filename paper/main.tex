@@ -1,4 +1,5 @@
-\documentclass{acm_proc_article-sp}
+%\documentclass{acm_proc_article-sp}
+\documentclass{sig-alternate-05-2015}
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{hyperref}
@@ -14,19 +15,23 @@
 \def \numbinaries {24}
 
 \begin{document}
-
-\title{InputFinder: Reverse Engineering Closed Binaries via Side Channels}
-%\numberofauthors{2}
-%\author{
-%\alignauthor
-%Bogdan Copos\\
-%	\affaddr{University of California, Davis}\\
-%	\email{bcopos@ucdavis.edu}
-%\alignauthor
-%Praveen Murthy\\
-%	\affaddr{Fujitsu Laboratories of America}\\
-%	\email{praveen.murthy@us.fujitsu.com}
-%}
+\CopyrightYear{2015} 
+\setcopyright{acmcopyright}
+\conferenceinfo{PPREW-5,}{December 08 2015, Los Angeles, CA, USA}
+\isbn{978-1-4503-3642-0/15/12}\acmPrice{\$15.00}
+\doi{http://dx.doi.org/10.1145/2843859.2843865}
+\title{InputFinder: Reverse Engineering Closed Binaries using Hardware Performance Counters}
+\numberofauthors{2}
+\author{
+\alignauthor
+Bogdan Copos\\
+	\affaddr{University of California, Davis}\\
+	\email{bcopos@ucdavis.edu}
+\alignauthor
+Praveen Murthy\\
+	\affaddr{Fujitsu Laboratories of America}\\
+	\email{praveen.murthy@us.fujitsu.com}
+}
 \maketitle
 
 \begin{abstract}
@@ -36,7 +41,8 @@ However, test suites may not be complete, if they exist at all.
 To date, only two methods exist for automatically generating test input for closed binaries: fuzzing and symbolic execution.
 Despite previous successes of these methods in identifying bugs, both techniques have limitations.
 In this paper, we propose a new method for autonomously generating valid input and identifying protocols for closed x86 binaries.
-To assess its effectiveness, we have developed \tool{} and tested it against binaries from the DARPA Cyber Grand Challenge example set.
+The method presented can be used as a standalone tool or can be combined with other techniques for improved results.
+To assess its effectiveness, we test \tool{}, the implementation of our method, against binaries from the DARPA Cyber Grand Challenge example set.
 Our evaluations show that our method is not only effective in finding input and determining whether a protocol is expected but can also find unexpected control flow paths.
 \end{abstract}
 
@@ -55,15 +61,22 @@ Currently these are the only two options available and both approaches present l
 Fuzzing done randomly with no inference attempted of the program's behavior cannot be effective as the input space is usually too large.
 Symbolic execution has traditionally been used with manual intervention to identify potential symbolic variables to begin exploration with, a luxury we do not have when analyzing closed binaries autonomously, in addition to scalability issues and limitations of decision procedures that are used to solve the constraints.
 
-In this paper, we introduce a new method, called InputFinder, for generating valid user-input for closed binaries. 
-This new method could be useful in autonomous vulnerability scanning systems, or for reverse engineering unknown binaries.
+In this paper, we introduce a new method and its implementation, called InputFinder, for generating valid user-input for closed binaries. 
+This new method could be useful in autonomous vulnerability scanning systems, for reverse engineering unknown binaries, or as a complement to fuzzers or symbolic execution engines.
 Our method is composed of two main components.
-The first component exploits side channels to build valid input for closed binaries.
+The first component exploits hardware performance counters to build valid input for closed binaries.
 Specifically, as the program is given various inputs, \tool{} records the number of instructions \textbf{retired} during the program's execution for each input and uses a statistical measure to infer the program's expected input.
 The number of instructions retired differs from the number of instructions executed by a processing unit.
 Because of the out-of-order CPU pipeline, a CPU may execute more instructions than necessary (e.g. as a result of wrong branch prediction).
 The instructions retired represent the subset of instructions executed which leave the \textit{Retirement Unit} once execution has been deemed correct (i.e. the instructions which actually impact the program).
-The same side channel is used by \tool{} to also find the expected input size and to categorize the expected input based on type.
+Since our input finding method works by leveraging information about how much work the processor performs during input validation, it does not depend on a particular platform, format (i.e. binary, source, etc), or method of obtaining input (e.g. stdin, arguments, network socket, file IO).
+However, there are some constraints.
+The underlying method does not work if the user input is transformed (e.g. hashed) before validation. 
+The implementation of our method also has some additional drawbacks.
+Our current implementation can only handle programs whose input is interpreted as a string (or a set of characters).
+The user input can have many components, however, there may not exist any internal dependencies between the components (e.g. value of one component defines the length of another component).
+If the input is composed of multiple components, the program must process the components sequentially in order for our method to work.
+The same hardware counters are used by \tool{} to also find the expected input size and to categorize the expected input based on type.
 The second component uses the discovered input to build a protocol state machine associated with the tested program.
 This enables the generation of a more thorough test suite.
 
@@ -131,13 +144,13 @@ Our work \tool{} differs from their approach in several ways.
 One difference is that our work uses neither static analysis nor constraint solvers.
 Instead our input finding method relies only on information extracted from the execution of the un-instrumented program. 
 
-There have also been numerous works studying and applying dynamic similarity.
-In \cite{blanketexec}, the authors propose blanket execution, a novel dynamic equivalence testing technique.
-Blanket execution is designed to collect information about the execution of functions, including side effects, which is then used for similarity testing.
-Another important work is \cite{differential} which introduces \textit{differential slicing} for the purpose of identifying flow and value differences across multiple executions of the same program for security applications.
-Both our approach and the previous approaches mentioned above use a dynamic approach to gather information about the program.
-However, our approach aims at finding differences in executions of a given program in order to make inferences about the underlying protocol expected by the program.
-This allows us to discover the orders of inputs which experience unique control flow paths.
+%There have also been numerous works studying and applying dynamic similarity.
+%In \cite{blanketexec}, the authors propose blanket execution, a novel dynamic equivalence testing technique.
+%Blanket execution is designed to collect information about the execution of functions, including side effects, which is then used for similarity testing.
+%Another important work is \cite{differential} which introduces \textit{differential slicing} for the purpose of identifying flow and value differences across multiple executions of the same program for security applications.
+%Both our approach and the previous approaches mentioned above use a dynamic approach to gather information about the program.
+%However, our approach aims at finding differences in executions of a given program in order to make inferences about the underlying protocol expected by the program.
+%This allows us to discover the orders of inputs which experience unique control flow paths.
 
 Another area of research relevant to this paper is protocol reverse engineering.
 An important result in this area is \cite{prospex} which introduces a technique for extracting protocol specifications from packet captures and automatically generating input which can be used by a stateful fuzzer.
@@ -152,24 +165,25 @@ To date, we do not know of any protocol reverse engineering techniques which wor
 
 \section{Background} \label{background}
 
-\subsection{Side Channels} \label{bg_sidechannels}
-Side channels are streams of information that can be retrieved from the hardware of a device running a given program.
-This information can be used to gather knowledge regarding the program's internal components.
-Side channels have been widely explored by security researchers in order to discover weaknesses in programs \cite{weinbergside, schindler2002combined, genkin2014rsa, genkinstealing}.
-In cryptography, side channel attacks exploit such information channels to defeat crypto systems \cite{zhou2005side, black2002black, okeya2006side}.
-Recently, side channel attacks, such as OpenSSL's CREAM cache timing attack have made headlines \cite{creamssl}.
-Similar to CREAM and other side channel attacks, the technique discussed in this paper exploits such information channels to generate valid input for binaries.
+%\subsection{Side Channels} \label{bg_sidechannels}
+%Side channels are streams of information that can be retrieved from the hardware of a device running a given program.
+%This information can be used to gather knowledge regarding the program's internal components.
+%Side channels have been widely explored by security researchers in order to discover weaknesses in %programs \cite{weinbergside, schindler2002combined, genkin2014rsa, genkinstealing}.
+%In cryptography, side channel attacks exploit such information channels to defeat crypto systems \cite{zhou2005side, black2002black, okeya2006side}.
+%Recently, side channel attacks, such as OpenSSL's CREAM cache timing attack have made headlines \cite{creamssl}.
+%Similar to CREAM and other side channel attacks, the technique discussed in this paper exploits such %information channels to generate valid input for binaries.
 \subsection{Hardware counter registers} \label{bg_hardwarereg}
 Most modern microprocessors are equipped with a set of special-purpose registers used to count hardware events.
 Each register, or counter, can be programmed to measure specific events such as cache misses, floating point operations, and even instructions retired.
 Such hardware performance counters are often used by software developers to analyze their programs and improve the running time and efficiency.
-However, in this paper we show how such performance counters can also be exploited as side channels.
+However, in this paper we show how such performance counters can also be used for reverse engineering.
 Utilities, such as Linux/Unix \textit{perf}, take advantage of such hardware counters in order to provide developers with useful information about a program's performance.
 The \textit{perf} utility allows developers to specify the desired hardware event they wish to measure.
 Once events have been selected, \textit{perf} interacts with the appropriate kernel modules to program the hardware counters accordingly.
 In this work, we use \textit{perf} to count the number of \textbf{user-land} instructions retired as a program is tested with various input.
 \textbf{User-land} instructions are instructions of a program which run outside the operating system's kernel.
-While other options are available for counting instructions retired, we choose \textit{perf} for its efficiency and minimal overhead.
+While other options are available for counting instructions, including program instrumentation, we choose \textit{perf} for its efficiency and minimal overhead.
+Experimental results comparing \textit{perf} and \textit{Pin} instrumentation show that instrumentation is at least 2 times slower.
 The number of \textit{total} instructions retired varies significantly for a binary from execution to execution \cite{weaver2008can}.
 This phenomenon reflects fluctuations in instructions retired by the kernel depending on the state of the machine due to cache-misses and other factors.
 Since we rely on this count, such variations are problematic.
@@ -181,7 +195,7 @@ Dynamic matching works by first collecting execution traces of different executi
 Such traces can be collected through a number of ways.
 One option includes the use of a tool such as \textit{Pin} \cite{pintool}.
 \textit{Pin} is a framework for building customized binary analysis tools and can be used to design a tool which creates a transcript of the instructions retired by a program.
-Once the traces are collected, they are analyze and mappings between instructions of different executions are produced.
+Once the traces are collected, they are analyzed and mappings between instructions of different executions are produced.
 These mappings can be used to understand the relationship between two executions (or two versions of a program).
 In this work, we rely on the concept of dynamic matching and the \textit{Pin} framework to develop a protocol state machine generator for closed binaries.
 
@@ -268,31 +282,45 @@ At time \textit{T1}, \tool{} finds valid characters for index 0 of the input str
 This continues until all child processes are done.
 
 \subsubsection{Finding Desired Input Size}
-The same side channels can be used to detect the expected size of the program's input or even the size of the program's input buffer.
-Specifically, there is a change in the behavior of the program with respect to the number of instructions retired when the size of the input is larger than expected.
-Most programs are designed to read a predefined number of bytes from the source of input and store the read bytes in a buffer.
-A popular way of doing that is by using the \textit{fgets()} or \textit{scanf()} functions of the GNU C stdio library.
-As the input size grows, the number of instructions retired also increases linearly.
+A similar approach can be used to detect the expected size of the program's input or even the size of the program's input buffer.
+Specifically, there may be a change in the behavior of the program with respect to the number of instructions retired when the size of the input is larger than expected.
+Most programs are designed to read a predefined number of bytes from the source of input and store the bytes in a buffer.
+However, the change in behavior as the input grows beyond the expected length can be observed and exploited. 
+Usually, as the input size grows, the number of instructions retired also changes (increases usually, except if optimizations are in place).
 This happens because additional instructions are needed to read more characters from the input source.
 However, when the input string is larger than the expected size, the number of instructions retired no longer increases as a function of the input size.
+It should be noted that the CGC binaries do not use the standard library functions.
+Instead, the CGC platform implements their own functions for handling user input, which use the CGC platform system call \textit{receive} to read one character at a time from the input source, in a loop, until a delimiter or a maximum size is reached.
+While the above described behavior is easily observed with CGC binaries, it also extends to programs using the standard GLIBC functions. 
+For example, when using the GLIBC functions such as \textit{getline} and \textit{fgets}, and the user input exceeds the expected length, the number of user-land instructions retired changes and remains constant as long as the input length exceeds the expected length.
 This behavior can be observed and exploited to find the expected input size, which may often also be the size of the input buffer.
+The same behavior is exerted for other similar functions
 Our method observes such differences in the number of user-land instructions retired as the program is given increasingly larger input.
 
+
 To start, \tool{} finds the set of all invalid characters for index 0 of all input strings and picks one at random.
-The character selected is used to build invalid input strings of various sizes.
+The character selected is used to build invalid input strings of various lengths.
 It is crucial to use invalid input to avoid noisy fluctuations in the number of instructions retired due to valid input processing.
 Initially, the program is executed twice: once with an input string of two invalid characters and once with an input string of three invalid characters.
 The number of user-land instructions retired during these two executions are recorded.
 These two values may be equal or different, depending on the program's logic.
-The two values may be equal if, for example, the program uses the system call \textit{read()} directly to read data from the input file descriptor.
+
+The two values may be equal if, for example, the program uses the \textit{read()} system call directly to read data from the input file descriptor.
 Since we are measuring the number of user-land instructions retired (not also instructions retired by the kernel), the instructions retired by the \textit{read()} function are not included in our counter so there will be no linear increase in the number of instructions retired as the input size is increased.
-If the two values are equal, the program is executed with increasingly large input until a change in the number of executions is recorded due to the program logic.
+If the two values are equal, the program is executed with increasingly large input until a change in the number of executions is recorded.
+
 If the values differ (as discussed earlier), the difference in the number of instructions retired is recorded and the program is executed, increasing the size of the input, until a change is detected.
-Instead of increasing the input size linearly, the input size is increased exponentially until a change is detected.
-Once the change is detected, the input size is decreased to find the exact size at which the change happens.
+In most cases, the recorded difference represents the number of instructions needed to read an additional character.
+Imagine a program which reads one character at a time, in a loop, until the expected number of characters is read.
+The process stops when the difference in the number of instructions executed between two inputs of two consecutive lengths (i.e input X and input Y are of lengths $n$ and $n+1$) is different from the recorded difference.
 It is also possible that the number of instructions retired oscillates between two (or more values).
-One example is a palindrome finder.
-The same underlying concept can be applied to such cases.
+This can happen if the program processes inputs of various lengths differently.
+One example is a palindrome finder, where the execution paths for input of an odd length and input of an even length differ with respect to the number of instructions.
+The same underlying concept can be applied to such cases, where the two (or more) oscillating values are recorded, and the input string is increased until a difference is observed.
+
+
+To speed up this process, instead of increasing the input size linearly, the input size is increased exponentially until a change is detected.
+Once the change is detected, the input size is decreased to find the exact size at which the change happens.
 
 Determining the exact size is useful when performing symbolic execution on a buffer where one cannot make the size of the buffer symbolic (since frameworks such as \textit{Fuzzball} do not allow for that).
 In such cases, being able to determine the buffer size is necessary and useful to instruct the symbolic execution engine the exact size of the buffer that should be made symbolic.
@@ -308,10 +336,10 @@ Such information is valuable especially in cases where the inputs discovered are
 Having learned such information about the program, the testing platform (e.g. fuzzer) can be adjusted to proceed accordingly.
 
 \subsection{Generating Protocol State Machine}
-Thus far, we have described how \tool{} discovers valid input for a given binary autonomously.
+Thus far we have described how \tool{} discovers valid input for a given binary autonomously.
 However, some binaries have an implicit protocol.
 Consider, for example, a database management program.
-Without first selecting a database and perhaps even a table, some commands such as \textit{INSERT} or \textit{SELECT} are useless and have no effect on any data.
+Without first selecting a database and perhaps even a table, some commands such as \textit{INSERT} or \textit{SELECT} (or their equivalent) have no effect.
 We develop the second component of \tool{} to address this issue.
 Specifically, this component identifies expected orderings (or permutations) of the discovered input strings, and constructs a protocol state machine.
 
@@ -378,29 +406,58 @@ Specifically, this component identifies expected orderings (or permutations) of 
 
 The architecture of this component is depicted in Figure \ref{fig:psm_arch}.
 The process is described below and shown as pseudocode in algorithm \ref{psmcode}.
-First, all possible permutations of all sizes from 2 to the number of input strings discovered are computed (e.g. given input strings $a,b,c,d$, the permutations generated include [a,b] , [a,c] , [a,d] , [b,a] , [b,c] , [b,d] ... [a,b,c] , [a,b,d], [a,c,b] ... [a,b,c,d] , ...  etc.).
-Every permutation is passed through the dynamic analysis engine.
-The dynamic analysis execution engine first splits the permutation into individual input strings.
-Maintaining the original order of the inputs within the permutation, each string is tested for the presence of expected arguments.
-For example, if the input string is \textit{SET} and the program accepts input of the format \textit{SET data}, the analysis tries to determine that \textit{data} is a valid argument by applying the input finding method with \textit{SET} as the command and identifying additional characters after the $<SPACE>$ character.
-The arguments found are saved for later use.
-Once every input string of a given permutation has been tested for arguments, the inputs are passed through the instrumented version of the program binary for the collection of the execution trace.
+The process can be split into three steps.
+\begin{itemize}
+\item First, all of the possible combinations of user inputs (given the discovered input strings) are generated.
+\item Then, the inputs are passed to an instrumented version of the binary, which outputs a single execution trace for each execution (one execution per permutation of input strings).
+\item Last, to determine the expect protocol, the execution traces are compared.
+\end{itemize}
+
+To generate all of the possible combinations of user inputs, all permutations of the discovered input strings are enumerated.
+The permutations range in size (i.e. number of strings) from 2 to $n$, where $n = | input\_strings\_set |$.
+However, enumerating all possible permutation of the discovered input strings may not be enough. 
+Consider cases where the user input is composed of two (or more) strings where the first string is a command and the rest are arguments.
+Now also imagine that the arguments of an input string depend on the previously entered string.
+To cover such cases, for each permutation, we test each input string for arguments (using the previously mentioned input finding technique).
+For example, for a given permutation $\{AUTH, SET\}$, our tool will first try to identify arguments for the \textit{AUTH} input string.
+Without finding the correct argument for the \textit{AUTH} command, the execution of \textit{SET} will not affect the program's state.
+Assume our approach was successful in identifying a single argument, \textit{0}, for the \textit{AUTH} string.
+Now, the tool will attempt to find arguments for \textit{SET} but with \textit{AUTH 0} as the first entered user input.
+Again, this ensures that our approach identifies arguments for strings which depend on previously entered strings.
+
+The resulting permutations of strings (and their arguments) are also passed through the instrumented binary in order to collect execution traces.
 The binary is instrumented with a \textit{Pin} tool, developed by us, which logs the starting address of every basic block executed, as a function of time.
 A basic block is a set of instructions with a single entry and a single exit point.
-Once all permutations of a given size have been executed, the dynamic similarity test begins.
-This test splits each execution trace into parts, each part being associated with an input string.
-The splitting process is done by first executing the program without any input, examining the trace, and extracting a short sequence of basic blocks from the end of the trace.
-The sequence of basic blocks extracted is used as the delimiter during the splitting process and it represents the basic blocks executed by the program right before reading and processing the user input.
-We refer to the execution trace of the input string \textit{SET} as $\alpha(SET)$.
-For all permutations of the same size with the same last input string, the traces $\alpha(lastCmd)$ are clustered.
-Given a permutation $p$ of size $s$ let $\alpha(p_s)$ represent the execution trace of the command at index $s$ of the permutation (i.e. last command of the permutation).
-Take for example two different permutations $p1$ and $p2$.
-Both permutations are of the same length, $i$.
-Both permutations are composed of the same input strings and have the same last input string (e.g. [a,b,c,d] vs. [b,a,c,d]).
-Assume permutation $p1$ represents the correct (or expected) order of the input strings.
-It is natural to assume that the input string $p_i$ (i.e. last input string in the permutation) experiences a different execution trace (or control flow path) as a result of permutation $p1$ than permutation $p2$.
-This information is used to determine, for every input string discovered, if there exists a permutation which affects its control flow path.
+Once all permutations of a given size have been executed, the dynamic similarity test analyzes the resulting execution traces.
+Each execution trace is split into sections, each sections associated with the program processing one of the input strings of the input permutation.
+These sections are delimited by a short sequence of specific basic blocks which are executed right before the reading and processing of the user input.
+To determine the \textit{correct} or \textit{expected} input string permutation, the execution trace section of the last command in a permutation is compared against the execution trace sections of that same command, in the same index of the permutation.
+Under the assumption that the execution of the last command will exhibit a different behavior given the correct prior user inputs, our approach identifies which input string permutation causes the execution trace section of the last command to differ from other execution sections of the same command, in the same index of the permutation.
 If such a permutation is discovered, it is added to the protocol state machine.
+
+%First, all possible permutations of all sizes from 2 to the number of input strings discovered are computed (e.g. given input strings $a,b,c,d$, the permutations generated include [a,b] , [a,c] , [a,d] , [b,a] , [b,c] , [b,d] ... [a,b,c] , [a,b,d], [a,c,b] ... [a,b,c,d] , ...  etc.).
+%Every permutation is passed through the dynamic analysis engine.
+%The dynamic analysis execution engine first splits the permutation into individual input strings.
+%Maintaining the original order of the inputs within the permutation, each string is tested for the presence of expected arguments.
+%For example, if the input string is \textit{SET} and the program accepts input of the format \textit{SET data}, the analysis tries to determine that \textit{data} is a valid argument by applying the input finding method with \textit{SET} as the command and identifying additional characters after the $<SPACE>$ character.
+%The arguments found are saved for later use.
+%Once every input string of a given permutation has been tested for arguments, the inputs are passed through the instrumented version of the program binary for the collection of the execution trace.
+%The binary is instrumented with a \textit{Pin} tool, developed by us, which logs the starting address of every basic block executed, as a function of time.
+%A basic block is a set of instructions with a single entry and a single exit point.
+%Once all permutations of a given size have been executed, the dynamic similarity test begins.
+%This test splits each execution trace into parts, each part being associated with an input string.
+%The splitting process is done by first executing the program without any input, examining the trace, and extracting a short sequence of basic blocks from the end of the trace.
+%The sequence of basic blocks extracted is used as the delimiter during the splitting process and it represents the basic blocks executed by the program right before reading and processing the user input.
+%We refer to the execution trace of the input string \textit{SET} as $\alpha(SET)$.
+%For all permutations of the same size with the same last input string, the traces $\alpha(lastCmd)$ are clustered.
+%Given a permutation $p$ of size $s$ let $\alpha(p_s)$ represent the execution trace of the command at index $s$ of the permutation (i.e. last command of the permutation).
+%Take for example two different permutations $p1$ and $p2$.
+%Both permutations are of the same length, $i$.
+%Both permutations are composed of the same input strings and have the same last input string (e.g. [a,b,c,d] vs. [b,a,c,d]).
+%Assume permutation $p1$ represents the correct (or expected) order of the input strings.
+%It is natural to assume that the input string $p_i$ (i.e. last input string in the permutation) experiences a different execution trace (or control flow path) as a result of permutation $p1$ than permutation $p2$.
+%This information is used to determine, for every input string discovered, if there exists a permutation %which affects its control flow path.
+%If such a permutation is discovered, it is added to the protocol state machine.
 
 \begin{figure}[h!]
 \caption{Example of protocol state machine for one of the DARPA Cyber Grand Challenge example binaries.}
@@ -420,13 +477,14 @@ The Cyber Grand Challenge (CGC) binaries are 32 bit x86 binaries in the CGC form
 The only difference between the CGC format and the well known ELF format is in the header of the binaries and in the fact that dynamic linking is not supported.
 Additionally, they are designed to only be executed in the Cyber Grand Challenge platform and utilize different system calls than the UNIX system calls.
 The Cyber Grand Challenge organizers also provide the source code of the binaries which, with some effort, can be modified to use UNIX system calls and be built as ELF x86 binaries.
+At the time of this writing, there were only 24 CGC binaries available, all of which were used for the analysis of our approach.
 
 The results are summarized in Table \ref{binaryresults}.
 Analyzing the source code showed that out of the \numbinaries{} binaries, 21 had predefined valid input strings.
 \tool{} found input strings for 13 of the 21 binaries and categorized the input correctly for 100\% of the 13 binaries.
 The running time varied between a few minutes and an hour, depending on the number and length of the valid input strings discovered.
 Our method was able to determine the input length for 19 of the 24 binaries.
-Note that the our approach was able to find the expected input length even if it was not able to find valid input.
+Note that our approach was able to find the expected input length even if it was not able to find valid input.
 Additionally, our method was able to determine crash inputs for 5 of the binaries.
 In all cases, the crash input caused a buffer overflow and caused the binary to exit unexpectedly.
 
@@ -490,7 +548,7 @@ This shows that the input finding approach in combination with the protocol stat
 
 When comparing our method with a black box fuzzer and a symbolic execution engine, we ran each technique for 30 minutes and gathered code coverage statistics.
 The black box fuzzer used is the open source \textit{zzuf} fuzzer and the symbolic execution engine used is that of the \textit{Fuzzball} \cite{zzuf, fuzzball}.
-While most popular for its symbolic execution, \textit{Fuzzball} is a tool for binary analysis, built on top of the BitBlaze Vine \cite{bitblaze, bitblazesite}, which can do a number of things including extracting various traces and computing coverage statistics.
+While most popular for its symbolic execution, \textit{Fuzzball} is a tool for binary analysis, built on top of the BitBlaze Vine \cite{bitblaze}, which can do a number of things including extracting various traces and computing coverage statistics.
 For simplicity reasons, we use the \textit{Fuzzball} tool to collect code coverage statistics.
 For compatibility reasons with the \textit{Fuzzball} tool, we translated the source code of the binary to use UNIX system calls and compiled it in the ELF format.
 The changes are minor and have no impact on the functionality of the program.
@@ -506,16 +564,28 @@ Overall, the results prove that the method presented in this paper is efficient 
 
 \section{Future Work and Limitations} \label{futurework}
 While the method presented in this paper has many advantages, it also has a few limitations.
-For certain programs that allow any input, such as an echo server, our method is not any more efficient than a black box fuzzer.
-Additionally, our method cannot handle cases in which input is composed of multiple inter-dependent fields, such as when the value of a field determines the length of another field and when binaries validate input fields out of order.
-This is one reason why our method failed to detect input for some of the binaries tested.
+The input finding implementation presented in this paper is only capable of finding input for programs which interpret the user input as a string (or set of characters).
+The method presented cannot handle cases in which input is composed of multiple inter-dependent fields. 
+As an example, the method presented fails in cases where the input is composed of multiple fields and the value of a field determines the length of another field or in cases where binaries validate input fields out of order.
+Such failures were observed in the evaluation of \tool{}. 
 Another reason of failure is binaries which accept non printable input (e.g. hex characters, binary, etc.).
 
-One may argue that there are other ways of finding the input strings of a binary.
-One option is the use of the Unix \textit{strings} utility, which finds all null terminated strings inside a binary.
-One problem with this approach is that the \textit{strings} utility may return a number of other strings within the binary, strings not used for input validation.
-Such strings can create a lot of noise and hinders the use of the \textit{strings} utility.
-Additionally, our approach can find dynamically generated input strings which the static \textit{strings} utility is not capable of.
+Another drawback of the presented method is its runtime complexity.
+For any given binary, to find valid input strings (without valid arguments), the runtime is $O\{n*m\}$, where $n$ is the length of the \textbf{longest} valid input string of the valid input string set and $m$ is the total number of valid input strings accepted by the program.
+The process can be parallelized but it is limited by the number of hardware performance counter registers.
+
+In a few cases, experiments have resulted in false positives, especially when experiments were run consecutively without pauses in between.
+Closer analysis showed that these false positives occur because of inaccurate performance counters, a phenomena we cannot yet explain.
+To account for this, an experiment can be re-run.
+
+The method proposed in this paper is not the only way of finding input strings for a closed binary.
+Similar results may be obtained by instrumenting the binary (using \textit{Pin} or even a debugger such as the \textit{GNU GDB}) to count the number of instructions executed.
+However, there is a significant difference in the overhead and runtime between instrumentation and our approach.
+This is one of the reasons why for the protocol generation part, our \textit{Pin} tool recorded basic block executed and \textbf{not} individual instructions.
+In the future, we wish to explore hardware performance counters and see if they can also be used for the protocol generation.
+Another option for finding input strings of a binary is to use the Unix \textit{strings} utility, which finds all null terminated strings inside a binary.
+One problem is that the \textit{strings} utility may return a number of other strings within the binary, strings not used for input validation, resulting in high false positives.
+Additionally, \textit{strings} is restricted to only finding static strings, whereas our approach can find dynamically generated input strings.
 Another option is the use of the \textit{ltrace} tool which echoes library functions called and their arguments.
 \textit{ltrace} could be used to determine calls of the \textit{strcmp()} function, which can help identify valid input strings.
 However, a program can be implemented to dynamically detect if it is being traced by a utility such as \textit{ltrace}.
@@ -541,9 +611,11 @@ Ultimately, we would like to generate some random arguments that remain constant
 Moreover, our current approach is not capable of identifying equivalent states.
 As seen in Figure \ref{fig:psm_example}, the different authentication paths (use of \textit{HELLO} vs. omission of \textit{HELLO}) lead to different states when in reality the two states (i.e. user is authenticated) are identical.
 Although we have not yet explored this, state minimization approaches for finite state machines may be applicable for this problem.
+
 Also, our method is based on the assumption that given a number of input strings, the majority of input string permutations are not valid and do not reflect the expected protocol.
 There may be cases where this assumption does not hold.
 A better option might be to monitor other aspects of the program, particularly the \textit{.data} and the \textit{.bss} sections and the heap during the executions and see how they react to various input string permutations.
+Also, we believe hardware performance counters (e.g. branch instructions) may be used to learn more about the program's state and whether a given input caused the program to change states.
 In the future, we would like to address the above mentioned concerns with our approach for generating protocol state machines.
 
 \section{Conclusions}
@@ -557,8 +629,8 @@ Unlike previous works, our methods do not have any fundamental limitations (such
 
 We believe that the our techniques could be applied and used in a number of settings including the building of test suites, discovering unwanted or unexpected control flow paths, and  finding bugs (when used in combination with a fuzzer).
 
-%\section*{Acknowledgments}
-%The authors would like to thank Thuan Pham for his feedback and useful discussions.
+\section{Acknowledgments}
+The authors would like to thank Thuan Pham for his feedback and useful discussions.
 
 \bibliographystyle{abbrv}
 \bibliography{inputfinder}

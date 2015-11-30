@@ -1,5 +1,6 @@
 *.log
+*.out
 *.aux
+*.bbl
 *.synctex.gz
-*.pdf
 copy_to_bitbucket.sh
